@@ -1696,7 +1696,7 @@ export default function App({deployment}) {
                 <span>Cihaz Eşleştirme ve Erişim Güvenliği</span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Öğretmenlerin ve personelin yalnızca okulda tanımlı ve onaylanmış cihazlardan yoklama almasını sağlayan cihaz kimlik eşleştirme paneli.
+                {schoolMode?'Bu yerel sürümde ilk giriş yapan cihaz otomatik onaylanır; hesap ve Windows erişim güvenliğini ayrıca yönetin.':'Öğretmenlerin ve personelin cihazlarını ve erişim durumlarını yönetebilirsiniz.'}
               </p>
             </div>
 
@@ -2028,7 +2028,7 @@ export default function App({deployment}) {
               <h3 className="text-xl font-black uppercase tracking-tight">ACİL DURUM ALARMI TETİKLE</h3>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 mb-4">
-              Seçilen okulun açık ekranlarında alarm görünür. Bildirim merkezine kayıt eklenir; izin veren cihazlara push gönderimi denenir.
+              {schoolMode?'Alarm bu bilgisayardaki açık uygulamada görünür. SMS, telefon araması veya push gönderilmez.':'Seçilen okulun açık ekranlarında alarm görünür. Bildirim merkezine kayıt eklenir; izin veren cihazlara push gönderimi denenir.'}
             </p>
 
             <div className="space-y-4">

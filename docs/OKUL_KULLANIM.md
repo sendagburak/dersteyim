@@ -1,6 +1,14 @@
 # VarYok okul kullanım kılavuzu
 
-Bu kılavuz yerel masaüstü sürümü içindir. Windows için kurulum dosyası oluşturulup gerçek cihazda sınanana kadar bir taslaktır. Her bilgisayardaki kayıtlar ayrıdır; okulun diğer bilgisayarlarıyla otomatik eşitleme yapılmaz.
+Bu kılavuz Windows yerel masaüstü deneme sürümü içindir. Gerçek öğrenci verileriyle kullanmadan önce kurumun yetki, güvenlik ve KVKK değerlendirmesi tamamlanmalıdır. Her bilgisayardaki kayıtlar ayrıdır; okulun diğer bilgisayarlarıyla otomatik eşitleme yapılmaz.
+
+## Başlamadan önce
+
+- Windows 10 veya 11'in 64 bit sürümünü ve kullanacağınız Windows hesabını kontrol edin.
+- Uygulamanın internete bağlanması günlük çalışma için gerekli değildir. İlk indirme ve kaynak koddan derleme internet gerektirir.
+- Kurulum dosyası uygulamayı bilgisayara kurar; taşınabilir EXE doğrudan açılabilir. Her iki biçim de bu Windows kullanıcısının yerel verilerini kullanır.
+- Okulunuzun hangi bilgisayarda çalışacağını ve kayıtların kimler tarafından görülebileceğini önceden belirleyin. İki bilgisayara kurmak verileri otomatik birleştirmez.
+- Bu sürüm resmî e-Okul kaydının yerine geçtiği varsayılarak kullanılmamalıdır; mevcut resmî iş akışına ilişkin kararı ilgili kurum verir.
 
 ## İlk açılış
 
@@ -40,6 +48,8 @@ Her hesap için oluşturulan TXT aynı Windows kullanıcısının Belgeler/VarYo
 
 Eylül-Temmuz klasörleri oluşturulur. Ağustos ayı için kayıt yapılırsa ayrıca Ağustos klasörü oluşturulur. Aynı dakikadaki raporlar üzerine yazılmaz; ada sıra numarası eklenir.
 
+Örnek dosya yolu: `Masaüstü/Yoklamalar/03-Kasım/04.11.2026/6-A_04.11.2026_09-15.xlsx`. Dosyadaki adlar maskeli olsa da öğrenci numarasıyla kişi belirlenebileceğinden dosya kişisel veri içerir. Raporları yalnızca görevi gereği erişmesi gereken kişilerle paylaşın.
+
 ## Diğer ekranlar
 
 - **Ödev Paneli** ve **Duyurular** uygulamanın yerel kayıtlarıdır. Diğer bilgisayarlara kendiliğinden gönderilmezler.
@@ -53,6 +63,14 @@ Eylül-Temmuz klasörleri oluşturulur. Ağustos ayı için kayıt yapılırsa a
 İdareci olarak **Okul / sınıf kurulumu → Sistem / yedek → Yedek oluştur** seçeneğini kullanın. Yedek, Belgeler/VarYok Yedekleri altında tarihli bir klasöre yazılır. Veritabanı ve şifreleme anahtarı birlikte bulunmalıdır. Yedek kişisel veri içerir; güvenli ve erişimi kısıtlı bir yerde saklayın. TXT şifre dosyaları ve masaüstü Excel raporları bu yedeğe dahil edilmez; gerekiyorsa bunları ayrıca koruyun.
 
 Geri yükleme öncesi uygulamayı kapatın. Mevcut `%APPDATA%/VarYok/okul-verileri` klasörünü silmeden başka bir güvenli yere kopyalayın. Sonra aynı yedeğe ait `eyoklama.db`, `encryption-key.json` ve varsa diğer dosyaları bu klasöre taşıyın. Şifreleme anahtarı başka bir yedekten olmamalıdır. Bu işlem Windows üzerinde ayrıca pilot test gerektirir.
+
+Önceki adı Dersteyim olan bir kurulumdan geçişte kayıtlar `%APPDATA%/Dersteyim/okul-verileri` içinde kalabilir. Yeni VarYok veri klasörü henüz yoksa uygulama önceki klasörü kullanır; şifre dosyaları da eski Belgeler/Dersteyim klasöründe kalabilir. İki klasör de varsa uygulama kayıtları kendiliğinden birleştirmez. Dosyaları silmeden önce ikisini ayrı ayrı yedekleyip yetkili teknik destekle durumu değerlendirin.
+
+## Kişisel verilerle çalışma
+
+Öğrenci listesi, sınıf numarası, yoklama, rapor ve yedekler korunması gereken kişisel veriler içerebilir. İhtiyacınız olmayan T.C. kimlik numarası, veli iletişimi ve benzeri isteğe bağlı alanları doldurmayın. Ders notuna veya diğer serbest alanlara sağlık bilgisi ve devamsızlık gerekçesi yazmayın. Maskeleme veya çevrimdışı çalışma tek başına anonimlik sağlamaz.
+
+Okul, öğrencileri ve velileri kendi işlemine uygun aydınlatma metniyle bilgilendirmekten ve bu yükümlülüğü yerine getirdiğini gösterebilmekten sorumlu veri sorumlusunu belirlemelidir. Program deposundaki taslak metinler her okul için doğrulanmadan aynen kullanılmamalıdır. Masaüstü veya Belgeler klasörü bir bulut hizmetiyle eşitleniyorsa bu hizmetin ayrıca değerlendirilmesi gerekir.
 
 ## Sorun giderme
 
