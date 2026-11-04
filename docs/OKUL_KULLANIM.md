@@ -2,6 +2,16 @@
 
 Bu kılavuz Windows yerel masaüstü deneme sürümü içindir. Gerçek öğrenci verileriyle kullanmadan önce kurumun yetki, güvenlik ve KVKK değerlendirmesi tamamlanmalıdır. Her bilgisayardaki kayıtlar ayrıdır; okulun diğer bilgisayarlarıyla otomatik eşitleme yapılmaz.
 
+## Hızlı başlangıç: tek bilgisayarda yoklama
+
+1. VarYok'u okulun belirlediği bilgisayarda açın. İlk açılışta bir kullanıcı adı ve şifre oluşturun, ardından giriş yapın.
+2. **Okul / sınıf kurulumu → Okul / sınıf** bölümünde sınıfları ve şubelerini oluşturun. Her sınıf için eğitim yılını kontrol edin.
+3. **Öğrenci ekle** bölümünden öğrencileri tek tek ekleyin veya **e-Okul İçe Aktar** bölümündeki şablonla sınıf listelerini yükleyin.
+4. **Yoklama Al** bölümünde sınıfı, tarihi ve ders saatini seçin; gelmeyenleri işaretleyin ve **Yoklamayı Kaydet** düğmesine basın.
+5. Masaüstünde **Yoklamalar** klasörünü açıp ay, gün ve sınıfın dosyasını kontrol edin. Kayıt işleminden sonra ekranda hata olup olmadığını da okuyun.
+
+İlk hesap tek başına yeterlidir; bütün sınıfların yoklamasını alabilir. Ek kullanıcı, öğretmen hesabı, veli hesabı ve haftalık ders programı günlük yoklama için zorunlu değildir. Bu kılavuz ilk kurulum, giriş ve uygulama içindeki **Kullanım kılavuzu** bağlantısından internet olmadan açılabilir.
+
 ## Başlamadan önce
 
 - Windows 10 veya 11'in 64 bit sürümünü ve kullanacağınız Windows hesabını kontrol edin.
@@ -29,18 +39,18 @@ Giriş ekranında **Şifremi unuttum** düğmesini seçin. Bilgisayardaki Belgel
 2. **Öğrenci ekle** bölümünde sınıfı, okul numarasını ve adı soyadı yazın. Kimlik numarası ve veli alanları isteğe bağlıdır. Gerekli kayıtları tamamlayın.
 3. Toplu aktarım için **e-Okul İçe Aktar** bölümünden öğrenci listesi veya haftalık ders programını seçin. Excel şablonunu indirip sütun başlıklarına göre doldurun; örnek satırı kaldırın ve doğru sınıfa XLSX veya UTF-8 CSV olarak yükleyin. Bu işlem e-Okul hesabınıza otomatik bağlanmaz.
 4. Yeni yıl başladığında o yıla ait sınıfları oluşturup listeleri tekrar içe aktarın. Aynı okul numarasındaki öğrenci yeni sınıfa taşınır; önceki yoklamaları geçmişte kalır. Öğrenci bir üst sınıfa otomatik geçirilmez. Boş bırakılan isteğe bağlı veli ve kimlik alanları mevcut bilgilerle korunur.
-5. **Ders saatleri** ve **Ders programı** bölümlerinde gerçek saatleri, günleri ve öğretmenleri tanımlayın. Öğretmenin erişebileceği sınıf, kayıtlı güncel dersine göre sınırlandırılır.
+5. **Ders saatleri** bölümünden okulun ders başlangıç ve bitiş saatlerini gerekirse düzeltin. İlk hesapla yoklama almak için haftalık ders programı tanımlamak gerekmez. Ayrı öğretmen hesapları kullanılacaksa **Ders programı (isteğe bağlı)** bölümünde öğretmen, sınıf, gün ve ders saatlerini tanımlayın; öğretmen hesabının yoklama erişimi güncel programıyla sınırlandırılır.
 
-## Kullanıcılar
+## Ek kullanıcılar ve personel: isteğe bağlı
 
-İlk hesapla **Öğretmen & Personel Tanımla** bölümünden uygun rolde kullanıcı oluşturabilirsiniz. Yönetici tarafından verilen geçici şifrenin ilk girişte değiştirilmesi istenir. Hesap açılması ve şifre değiştirme işlemleri aynı bilgisayarın yerel veritabanını etkiler; başka bir bilgisayarda otomatik hesap açmaz. Veli veya öğrenci hesabının ilgili kayıtları görmesi için **Okul / sınıf kurulumu → Hesap eşleştirme** bölümünde doğru öğrenciye bağlanması gerekir.
+İlk hesapla tüm sınıfların yoklaması alınabilir. Gerçekten ayrı hesap gerektiren durumlarda **Ek kullanıcılar (isteğe bağlı)** bölümünden uygun rolde kullanıcı oluşturabilirsiniz. Yönetici tarafından verilen geçici şifrenin ilk girişte değiştirilmesi istenir. Hesap açılması ve şifre değiştirme işlemleri aynı bilgisayarın yerel veritabanını etkiler; başka bir bilgisayarda otomatik hesap açmaz. Bir öğretmen hesabıyla yoklama alınacaksa bu öğretmenin güncel dersi **Okul / sınıf kurulumu → Ders programı (isteğe bağlı)** bölümünde tanımlanmalıdır. Veli veya öğrenci hesabının ilgili kayıtları görmesi için **Okul / sınıf kurulumu → Hesap eşleştirme (isteğe bağlı)** bölümünde doğru öğrenciye bağlanması gerekir.
 
 Her hesap için oluşturulan TXT aynı Windows kullanıcısının Belgeler/VarYok dizinindedir. Bu klasörün ortak Windows oturumunda aynı oturumu kullanan diğer kişilerce okunabileceğini dikkate alın.
 
 ## Yoklama alma ve rapor
 
-1. **Yoklama Al** ekranında sınıfı ve ders saatini seçin. Öğretmen hesabında o anda programda bulunan sınıf gösterilir.
-2. Her öğrenci için Geldi, Gelmedi, Geç veya İzinli durumunu belirleyin; ardından **Yoklamayı Kaydet** düğmesine basın.
+1. İlk hesapla giriş yapın. **Yoklama Al** ekranında sınıfı, tarihi ve ders saatini seçin. Seçtiğiniz sınıfın yanındaki eğitim öğretim yılının doğru olduğuna bakın. Ayrı bir öğretmen hesabı kullanıyorsanız o anda programda bulunan sınıf gösterilir.
+2. Öğrenciler başlangıçta **Geldi** olarak işaretlenir. Gelmeyenleri **Gelmedi**, gerekiyorsa diğer öğrencileri **Geç** veya **İzinli** olarak işaretleyin; listeyi kontrol ettikten sonra **Yoklamayı Kaydet** düğmesine basın. Kaydetmeden başka sınıfa geçmeyin.
 3. Ders ve tarih ayrı tutulur. Daha sonra aynı derste düzeltme yapmak gerekiyorsa ilgili kayıt güncellenir. Sınıf seçerken yanındaki eğitim öğretim yılını kontrol edin; aynı şubenin önceki yıl kaydı ayrıca seçilebilir. Başka bir oturum aynı kaydı değiştirmişse listeyi yenileyip tekrar deneyin.
 4. Kaydetmeden sonra ekrandaki sonucu okuyun. Excel başarısız olsa bile veritabanı kaydı tamamlanmış olabilir; uyarıya göre masaüstü klasörü ve yazma izinlerini kontrol edin.
 5. Masaüstündeki **Yoklamalar** klasöründen ilgili ayı ve tarih klasörünü açın. Dosya adı sınıf, tarih ve oluşturma saatini içerir. Bir sınıfın aynı gündeki tüm kaydedilmiş derslerinde **Gelmedi** işaretlenen öğrenciler raporda dersleriyle birlikte yer alır. İsimler maskelidir. Her kayıt yeni bir dosya oluşturabilir; en güncel dosyayı saatine göre seçin.
@@ -50,11 +60,23 @@ Eylül-Temmuz klasörleri oluşturulur. Ağustos ayı için kayıt yapılırsa a
 
 Örnek dosya yolu: `Masaüstü/Yoklamalar/03-Kasım/04.11.2026/6-A_04.11.2026_09-15.xlsx`. Dosyadaki adlar maskeli olsa da öğrenci numarasıyla kişi belirlenebileceğinden dosya kişisel veri içerir. Raporları yalnızca görevi gereği erişmesi gereken kişilerle paylaşın.
 
+## Acil durum ve sesli alarm
+
+1. Bilgisayar açıkken hoparlörün bağlı, Windows ses çıkışının doğru ve ses düzeyinin duyulabilir olduğundan emin olun.
+2. İlk hesapla sağ üstteki **Acil Durum** düğmesine basın. Yangın, deprem, tahliye, güvenlik veya sağlık türlerinden uygun olanı seçin.
+3. İsterseniz **Seçili sesi dene** düğmesine basın. Kısa bir örnek çalar; bu işlem alarm kaydı başlatmaz. Sesler uygulama tarafından üretilir, internet ve dışarıdan ses dosyası indirmek gerekmez.
+4. Mesajı kurumun ilgili acil durum planına göre kontrol edin. **Alarmı onayla ve başlat** düğmesine bastığınızda kayıt oluşturulur; açık uygulamada uyarı görünür ve bilgisayarın ses çıkışından seçilen alarm tekrarlanır.
+5. Yetkili kişi tehlikenin sona erdiğini değerlendirdiğinde **Alarmı Kapat / Normale Dön** düğmesine basar. Uyarı kapanır ve ses durur.
+
+Ses başlamazsa alarm şeridindeki **Sesi etkinleştir** düğmesine basın; Windows ses düzeyini, seçili ses aygıtını ve hoparlör bağlantısını kontrol edin. Bu özellik yalnızca bu bilgisayarın mevcut ses çıkışını kullanır; tüm okula duyulması bağlı ses sistemine ve ses düzeyine bağlıdır. Bilgisayar veya uygulama kapalıyken ses çalmaz. Yeniden girişte etkin bir alarm görünürse sesi ayrıca etkinleştirmek gerekebilir.
+
+VarYok SMS, telefon araması, push veya haricî sirene otomatik komut göndermez; resmî yangın, tahliye, deprem uyarı ve acil çağrı sistemlerinin yerine geçmez. Hangi durumda nasıl hareket edileceğini kurumun yürürlükteki planı ve yetkilileri belirler.
+
 ## Diğer ekranlar
 
 - **Ödev Paneli** ve **Duyurular** uygulamanın yerel kayıtlarıdır. Diğer bilgisayarlara kendiliğinden gönderilmezler.
 - **Bildirimler** uygulama içi kayıtları gösterir. Bu sürümde e-posta ve push gönderimi kapalıdır.
-- **Acil Durum** kaydı uygulama içindedir; SMS, telefon araması, haricî siren veya dış bildirim göndermez.
+- **Acil Durum** uyarısı ve sesi uygulamanın açık olduğu bilgisayardadır; SMS, telefon araması, haricî siren veya dış bildirim göndermez.
 - **KVKK Öğrenci & Veli Paneli** maskeli bilgileri gösterir. Yetkili tam bilgiyi görüntülemeye çalıştığında şifre ve gerekçe istenen işlemler günlüğe kaydedilir. Windows dosya sistemi üzerinden yapılan her erişimin uygulama tarafından kaydedildiği varsayılmamalıdır.
 - **Hesabım** üzerinden şifre değiştirilir. TXT dosyası da güncellenir.
 
@@ -79,5 +101,6 @@ Okul, öğrencileri ve velileri kendi işlemine uygun aydınlatma metniyle bilgi
 - **Sınıf görünmüyor:** İdareci olarak sınıf ve öğrenci kayıtlarını; öğretmen olarak ders programını, dersi ve okulun ders saatlerini kontrol edin.
 - **Excel oluşmadı:** Masaüstü konumunun erişilebilir ve yazılabilir olduğundan emin olun; dosya açıksa kapatıp yoklamayı kontrol ederek tekrar deneyin. Hata mesajında veritabanı kaydının durumu ayrıca belirtilir.
 - **Başka bilgisayarda hesap veya kayıt yok:** Bu sürümde her kurulum bağımsızdır. Ağ üzerinden otomatik paylaşım veya eşitleme yapılmaz.
+- **Acil durum sesi duyulmuyor:** Önce ekrandaki **Sesi etkinleştir** düğmesini, ardından Windows'un doğru hoparlöre ses gönderdiğini ve uygulama/cihaz sesinin kısık olmadığını kontrol edin. Alarm ekranındaki **Seçili sesi dene** düğmesi kayıt oluşturmadan deneme yapar; etkin alarm sırasında deneme düğmesi kullanılamaz.
 - **E-posta/push gitmiyor:** Bu sürümde bilerek kapalıdır. İnternet açmak veya süre beklemek bunları etkinleştirmez.
 - **Kaldırma:** Kurulum sürümünün kaldırılması programı kaldıracak, kullanıcı verilerini koruyacak biçimde yapılandırılmıştır. Bu davranış henüz gerçek Windows cihazında doğrulanmamıştır; kaldırmadan önce bağımsız bir yedek alın.

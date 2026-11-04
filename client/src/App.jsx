@@ -11,6 +11,8 @@ import Account from './Account';
 import FamilyPortal from './FamilyPortal';
 import Notifications from './Notifications';
 import SchoolRecovery from './SchoolRecovery';
+import Guide from './Guide';
+import {createEmergencySound} from './emergencySound';
 
 export default function App({deployment}) {
   const schoolMode=deployment?.mode==='school';
@@ -61,7 +63,17 @@ export default function App({deployment}) {
   const [sentNotifications, setSentNotifications] = useState([]);
   const [auditLogs, setAuditLogs] = useState([]);
   const [activeEmergency, setActiveEmergency] = useState(null);
+  const activeEmergencyRef = useRef(null);
+  activeEmergencyRef.current = activeEmergency;
   const [healthData, setHealthData] = useState(null);
+  const emergencyAudio = useRef(null);
+  if (!emergencyAudio.current) emergencyAudio.current = createEmergencySound();
+  const emergencyRequest = useRef(0);
+  const emergencyPreviewSequence = useRef(0);
+  const [emergencySoundState, setEmergencySoundState] = useState('idle');
+  const [emergencyBusy, setEmergencyBusy] = useState(false);
+  const [emergencyPreviewMessage, setEmergencyPreviewMessage] = useState('');
+  const [guideBeforeLogin, setGuideBeforeLogin] = useState(false);
 
   const [importKind,setImportKind] = useState('students');
   const [authLoading, setAuthLoading] = useState(true);
@@ -75,7 +87,7 @@ export default function App({deployment}) {
   const [emergencyModalOpen, setEmergencyModalOpen] = useState(false);
   const [emergencySchool,setEmergencySchool] = useState('');
   const [emergencyType, setEmergencyType] = useState('YANGIN');
-  const [emergencyMessage, setEmergencyMessage] = useState('Tüm sınıflar derhal bahçe toplanma alanına intikal etsin!');
+  const [emergencyMessage, setEmergencyMessage] = useState('Kurumun acil durum planına ve yetkililerin yönlendirmelerine uyun.');
   const [universalRevealStudent, setUniversalRevealStudent] = useState(null);
   const [revealPassword, setRevealPassword] = useState('');
   const [revealReason, setRevealReason] = useState('Resmi MEB İncelemesi / Veli Görüşmesi');
@@ -198,10 +210,11 @@ export default function App({deployment}) {
 
   // Fetch Emergency
   const fetchEmergencyStatus = useCallback(async () => {
+    const sequence = ++emergencyRequest.current;
     try {
       const res = await apiFetch(`/api/emergency/active${emergencySchool ? `?schoolId=${emergencySchool}` : ''}`);
       const data = await res.json();
-      if (data.success) setActiveEmergency(data.activeAlert);
+      if (data.success && sequence === emergencyRequest.current) setActiveEmergency(data.activeAlert);
     } catch (err) {
       console.error('Fetch emergency error:', err);
     }
@@ -288,6 +301,18 @@ export default function App({deployment}) {
   }, [currentUser, fetchContext, fetchEmergencyStatus, fetchHealthInfo, fetchQueue]);
 
   useEffect(() => {
+    if (!currentUser || currentUser.must_change_password || ['parent', 'student'].includes(currentUser.role) || !activeEmergency) {
+      emergencyAudio.current.stop();
+      setEmergencySoundState('idle');
+      return;
+    }
+    setEmergencySoundState(emergencyAudio.current.start(activeEmergency.alert_type) ? 'playing' : 'blocked');
+    return () => emergencyAudio.current.stop();
+  }, [currentUser?.id, currentUser?.role, currentUser?.must_change_password, activeEmergency?.id, activeEmergency?.alert_type]);
+
+  useEffect(() => () => emergencyAudio.current.dispose(), []);
+
+  useEffect(() => {
     if (currentUser && !currentUser.must_change_password && !['parent','student'].includes(currentUser.role) && selectedClassId) {
       void Promise.resolve().then(() => fetchClassStudents(selectedClassId, selectedPeriod));
     }
@@ -344,6 +369,10 @@ export default function App({deployment}) {
       });
     } catch {}
     studentRequest.current++;
+    emergencyRequest.current++;
+    emergencyPreviewSequence.current++;
+    emergencyAudio.current.stop();
+    setActiveEmergency(null);
     setToken('');
     setCurrentUser(null);
     setActiveTab('attendance'); setStudents([]); setQueue([]); setSelectedClassId('');
@@ -434,6 +463,12 @@ export default function App({deployment}) {
 
   // Emergency SOS
   const handleTriggerEmergency = async () => {
+    if (emergencyBusy) return;
+    setEmergencyBusy(true);
+    emergencyPreviewSequence.current++;
+    if (!activeEmergency) emergencyAudio.current.stop();
+    // Prepare audio during the click, but do not play until the server confirms the alarm.
+    const audioReady = emergencyAudio.current.unlock();
     try {
       const res = await apiFetch('/api/emergency/trigger', {
         method: 'POST',
@@ -451,12 +486,33 @@ export default function App({deployment}) {
       const data = await res.json();
       if (data.success) {
         setEmergencyModalOpen(false);
-        fetchEmergencyStatus();
+        await Promise.race([audioReady, new Promise(resolve => setTimeout(resolve, 1000))]);
+        emergencyRequest.current++;
+        if (data.activeAlert) setActiveEmergency(data.activeAlert);
+        else await fetchEmergencyStatus();
         showMessage(data.message);
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setEmergencyBusy(false);
     }
+  };
+
+  const handleEmergencyPreview = async () => {
+    if (activeEmergency) return;
+    const sequence = ++emergencyPreviewSequence.current;
+    const ready = await emergencyAudio.current.unlock();
+    if (sequence !== emergencyPreviewSequence.current || activeEmergencyRef.current) return;
+    const playing = ready && emergencyAudio.current.start(emergencyType, {preview: true});
+    setEmergencyPreviewMessage(playing ? 'Örnek ses kısa süreyle çalar; alarm kaydı oluşturulmaz.' : 'Ses başlatılamadı. Windows ses çıkışını ve hoparlörleri kontrol edin.');
+  };
+
+  const handleEnableEmergencySound = async () => {
+    const alertId = activeEmergency.id;
+    const ready = await emergencyAudio.current.unlock();
+    if (activeEmergencyRef.current?.id !== alertId) return;
+    setEmergencySoundState(ready && emergencyAudio.current.start(activeEmergency.alert_type) ? 'playing' : 'blocked');
   };
 
   const handleResolveEmergency = async () => {
@@ -468,6 +524,8 @@ export default function App({deployment}) {
       });
       const data = await res.json();
       if (data.success) {
+        emergencyRequest.current++;
+        emergencyAudio.current.stop();
         setActiveEmergency(null);
         showMessage('Acil durum alarmı sonlandırıldı.');
       }
@@ -632,6 +690,7 @@ export default function App({deployment}) {
   if (authLoading) return <div role="status" className="min-h-screen grid place-items-center">VarYok yükleniyor…</div>;
   if (currentUser?.must_change_password) return <Account request={apiFetch} user={currentUser} forced onChanged={refreshSession} onLogout={handleLogout}/>;
   if (currentUser && ['parent','student'].includes(currentUser.role)) return <FamilyPortal user={currentUser} request={apiFetch} onLogout={handleLogout}/>;
+  if (!currentUser && guideBeforeLogin) return <main className="min-h-screen bg-slate-100 dark:bg-slate-950 p-4"><div className="max-w-4xl mx-auto"><button className="action mb-4" onClick={() => setGuideBeforeLogin(false)}>Girişe dön</button><Guide/></div></main>;
   // LOGIN SCREEN (If not authenticated)
   if (!currentUser) {
     return (
@@ -642,7 +701,7 @@ export default function App({deployment}) {
               <img src="/varyok-logo.png" alt="VarYok" className="h-16 w-auto object-contain mx-auto" />
             </div>
             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-              ders<span className="text-cyan-600 dark:text-cyan-400">teyim</span>
+              Var<span className="text-cyan-600 dark:text-cyan-400">Yok</span>
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
               Niğde İl Millî Eğitim Müdürlüğü • YEĞİTEK Birimi
@@ -697,6 +756,7 @@ export default function App({deployment}) {
             </button>
           </form>
           {schoolMode&&<SchoolRecovery/>}
+          <button type="button" className="underline text-sm mt-3" onClick={() => setGuideBeforeLogin(true)}>Kullanım kılavuzu</button>
         </div>
       </div>
     );
@@ -720,8 +780,10 @@ export default function App({deployment}) {
               <span className="ml-2 text-xs text-red-200">
                 (Saat: {activeEmergency.triggered_at})
               </span>
+              <p className="mt-1 text-xs">{emergencySoundState === 'playing' ? 'Alarm sesi bu bilgisayarda etkin.' : 'Alarm sesi henüz açılamadı; sesi etkinleştirin ve hoparlörleri kontrol edin.'}</p>
             </div>
           </div>
+          {emergencySoundState === 'blocked' && <button type="button" onClick={handleEnableEmergencySound} className="mt-2 sm:mt-0 bg-white text-red-700 font-bold px-4 py-1.5 rounded-lg text-sm">Sesi etkinleştir</button>}
           {isAnyAdmin && (
             <button
               onClick={handleResolveEmergency}
@@ -745,7 +807,7 @@ export default function App({deployment}) {
             <div>
               <div className="flex items-center space-x-2">
                 <h1 className="text-xl font-black tracking-tight text-white flex items-center">
-                  <span>ders</span><span className="text-cyan-400">teyim</span>
+                  <span>Var</span><span className="text-cyan-400">Yok</span>
                 </h1>
                 <span className="bg-emerald-500 text-emerald-950 font-bold text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider">
                   Veri maskeleme aktif
@@ -828,7 +890,7 @@ export default function App({deployment}) {
 
       </header>
 
-      {schoolMode&&<div className="bg-slate-100 dark:bg-slate-800 px-4 py-2 text-sm text-center">{deployment.school.name} · Kurum kodu {deployment.school.code} · Okul içi kullanım · E-posta ve push pasif</div>}
+      {schoolMode&&<div className="bg-slate-100 dark:bg-slate-800 px-4 py-2 text-sm text-center">{deployment.school.name} · Bu bilgisayarda çevrimdışı kullanım · E-posta ve push pasif</div>}
       {/* STATUS TOAST NOTIFICATION */}
       {statusMessage && (
         <div className="max-w-4xl mx-auto mt-3 px-4 w-full">
@@ -896,7 +958,7 @@ export default function App({deployment}) {
             <span>KVKK Öğrenci & Veli Paneli</span>
           </button>
 
-          {isAnyAdmin && (
+          {isAnyAdmin && !schoolMode && (
             <button
               onClick={() => setActiveTab('users')}
               className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition ${
@@ -992,14 +1054,15 @@ export default function App({deployment}) {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto w-full px-4 pt-3 flex gap-4"><button className="underline text-sm" onClick={()=>setActiveTab('notifications')}>Bildirimler</button><button onClick={() => setActiveTab('account')} className="underline text-sm">Hesabım</button>{isAnyAdmin && <button onClick={() => setActiveTab('management')} className="underline text-sm">Okul / sınıf kurulumu</button>}</div>
+      <div className="max-w-7xl mx-auto w-full px-4 pt-3 flex flex-wrap gap-4"><button className="underline text-sm" onClick={()=>setActiveTab('notifications')}>Bildirimler</button><button onClick={() => setActiveTab('account')} className="underline text-sm">Hesabım</button>{isAnyAdmin && <button onClick={() => setActiveTab('management')} className="underline text-sm">Okul / sınıf kurulumu</button>}{isAnyAdmin && schoolMode && <button onClick={() => setActiveTab('users')} className="underline text-sm">Ek kullanıcılar (isteğe bağlı)</button>}<button onClick={() => setActiveTab('guide')} className="underline text-sm">Kullanım kılavuzu</button></div>
       {/* 5. TAB CONTENTS */}
       <main className="max-w-7xl mx-auto px-4 py-6 w-full flex-1">
 
         {activeTab === 'notifications' && <Notifications request={apiFetch} user={currentUser}/>}
-        {activeTab === 'management' && isAnyAdmin && <Management request={apiFetch} user={currentUser} onRefresh={fetchContext}/>}
+        {activeTab === 'management' && isAnyAdmin && <Management request={apiFetch} user={currentUser} onRefresh={fetchContext} schoolMode={schoolMode}/>}
         {activeTab === 'account' && <Account request={apiFetch} user={currentUser} onChanged={refreshSession}/>}
-        {!allClasses.length && <p className="panel mb-4">Henüz erişebildiğiniz sınıf yok. Okul / sınıf kurulumu bölümünden sınıf ve ders programı tanımlayın.</p>}
+        {activeTab === 'guide' && <Guide/>}
+        {!allClasses.length && activeTab !== 'guide' && <p className="panel mb-4">{schoolMode && isAnyAdmin ? 'Henüz sınıf yok. Okul / sınıf kurulumu bölümünden sınıfları ve öğrencileri ekleyin. Ek kullanıcı veya ders programı zorunlu değildir.' : 'Henüz erişebildiğiniz sınıf yok. Okul / sınıf kurulumu bölümünden sınıf ve ders programı tanımlayın.'}</p>}
         {/* TAB 1: ATTENDANCE */}
         {activeTab === 'attendance' && (
           <div className="space-y-6">
@@ -1319,13 +1382,13 @@ export default function App({deployment}) {
                 <h2 className="text-lg font-black text-slate-900 dark:text-white flex items-center space-x-2">
                   <UserPlus className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   <span>
-                    {isSuperAdmin
+                    {schoolMode ? 'Ek kullanıcılar (isteğe bağlı)' : isSuperAdmin
                       ? 'Yetki ve Kullanıcı Yönetim Merkezi (Ana Yetkili: Burak Şendağ)'
                       : `Okul Personel ve Kullanıcı Tanımlama (${currentUser.school_name})`}
                   </span>
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                  {isSuperAdmin
+                  {schoolMode ? 'İlk oluşturduğunuz hesapla bu bilgisayardaki tüm sınıfların yoklamasını alabilirsiniz. Başka bir kullanıcı eklemek zorunlu değildir; ek hesaplar da yalnızca bu bilgisayarda geçerlidir.' : isSuperAdmin
                     ? 'Yalnızca siz ve atadığınız admin arkadaşlarınız okul yöneticilerini (idarecileri) tanımlayabilir. İdareciler ise kendi okullarının öğretmenlerini tanımlar.'
                     : 'Okul yöneticisi (İdareci) olarak okulunuzun öğretmenlerini ve velilerini buradan tanımlayabilirsiniz.'}
                 </p>
@@ -2028,7 +2091,7 @@ export default function App({deployment}) {
               <h3 className="text-xl font-black uppercase tracking-tight">ACİL DURUM ALARMI TETİKLE</h3>
             </div>
             <p className="text-xs text-slate-600 dark:text-slate-300 mb-4">
-              {schoolMode?'Alarm bu bilgisayardaki açık uygulamada görünür. SMS, telefon araması veya push gönderilmez.':'Seçilen okulun açık ekranlarında alarm görünür. Bildirim merkezine kayıt eklenir; izin veren cihazlara push gönderimi denenir.'}
+              {schoolMode?'Onaydan sonra alarm bu bilgisayarın hoparlöründen çalar ve ekranda görünür. SMS, telefon araması veya push gönderilmez. Kurumun acil durum sistemlerinin yerine geçmez.':'Seçilen okulun açık ekranlarında alarm görünür. Bildirim merkezine kayıt eklenir; izin veren cihazlara push gönderimi denenir.'}
             </p>
 
             <div className="space-y-4">
@@ -2048,6 +2111,8 @@ export default function App({deployment}) {
                 </select>
               </div>
 
+              <div className="text-sm"><button type="button" disabled={!!activeEmergency} onClick={handleEmergencyPreview} className="underline font-semibold disabled:opacity-50">Seçili sesi dene</button>{activeEmergency && <span className="ml-2">Etkin alarm varken ses denemesi yapılamaz.</span>}{emergencyPreviewMessage && <p role="status" className="mt-1">{emergencyPreviewMessage}</p>}</div>
+
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Yayınlanacak Anlık Mesaj</label>
                 <textarea
@@ -2062,7 +2127,8 @@ export default function App({deployment}) {
             <div className="mt-6 flex items-center justify-end space-x-3">
               <button
                 type="button"
-                onClick={() => setEmergencyModalOpen(false)}
+                disabled={emergencyBusy}
+                onClick={() => { emergencyPreviewSequence.current++; if (!activeEmergency) emergencyAudio.current.stop(); setEmergencyPreviewMessage(''); setEmergencyModalOpen(false); }}
                 className="px-4 py-2 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 text-xs font-bold"
               >
                 Vazgeç
@@ -2070,9 +2136,10 @@ export default function App({deployment}) {
               <button
                 type="button"
                 onClick={handleTriggerEmergency}
+                disabled={emergencyBusy}
                 className="bg-red-600 hover:bg-red-700 text-white font-black px-6 py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-lg transition active:scale-95"
               >
-                ALARMI TETİKLE!
+                {emergencyBusy ? 'ALARM BAŞLATILIYOR…' : 'ALARMI ONAYLA VE BAŞLAT'}
               </button>
             </div>
           </div>

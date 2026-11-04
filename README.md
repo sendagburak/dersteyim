@@ -9,11 +9,13 @@ Projenin önceki adı Dersteyim'di. Önceki masaüstü sürümünün veri klasö
 ## Kullanım biçimi
 
 - İlk açılışta kullanıcı kendi kullanıcı adını ve şifresini oluşturur. Okul talep formu, yetki dosyası ve ayrı yönetim aracı kullanılmaz.
+- Tek bilgisayardaki ilk hesap bütün sınıfların yoklamasını alabilir; ek kullanıcılar ve öğretmenlere ait haftalık ders programı isteğe bağlıdır.
 - Uygulama kendi penceresinde açılacak şekilde hazırlanmıştır; Chrome sekmesi açılması amaçlanmaz. Arkada yalnızca aynı bilgisayardan erişilen bir yerel servis bulunur.
 - Eğitim öğretim yılı otomatik önerilir; gelecek yıllar seçilebilir veya yazılabilir. Önceki yılların yoklamaları korunur. Öğrenci aktarımı otomatik değildir.
 - Her bilgisayar kendi veritabanını tutar. Farklı bilgisayarlar otomatik eşitlenmez; bu sürüm ortak okul sunucusu değildir.
 - E-posta ve push kodları korunur, okul modunda kapalıdır. İnternet, ücretli API, host ve domain günlük çalışma için gerekli değildir.
 - e-Okul ile otomatik entegrasyon yoktur. Sınıf listesi ve ders programı XLSX veya CSV dosyasından aktarılır.
+- Kullanım kılavuzu ilk kurulum, giriş ve uygulama içinden çevrimdışı açılır. Acil durum onayında seçilen türün sesli uyarısı bilgisayarın hoparlöründe çalar; sesler uygulamada üretilir, haricî servis veya ses kaydı kullanılmaz. Bu özellik kurumun acil durum sistemlerinin yerine geçmez.
 
 ## Giriş bilgileri ve gizlilik
 
