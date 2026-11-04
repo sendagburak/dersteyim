@@ -1,6 +1,8 @@
 const {app,BrowserWindow,dialog,session}=require('electron');
 const path=require('node:path');const {startBackend}=require('./backend-process.cjs');
 app.setName('Dersteyim');
+// Allows an isolated synthetic profile in automated Windows package tests.
+if(process.env.DERSTEYIM_TEST_PROFILE_DIR)app.setPath('userData',path.resolve(process.env.DERSTEYIM_TEST_PROFILE_DIR));
 let mainWindow,service,quitting=false;
 const gotLock=app.requestSingleInstanceLock();
 if(!gotLock)app.quit();

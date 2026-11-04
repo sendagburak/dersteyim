@@ -31,6 +31,8 @@ jobs:
         run: npm install --prefix desktop --no-audit --no-fund
       - name: Windows kurulum ve taşınabilir EXE
         run: npm --prefix desktop run dist
+      - name: Paketlenmiş EXE ile örnek kurulum ve yoklama testi
+        run: node scripts/windows-package-smoke.cjs dist_installer/win-unpacked/Dersteyim.exe
       - uses: actions/upload-artifact@v4
         with:
           name: Dersteyim-Windows-x64
