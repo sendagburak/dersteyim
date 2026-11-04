@@ -4,7 +4,7 @@ Tarih: 4 Kasım 2026. Bu kayıt bir sızma testi veya eksiksiz kaynak kodu güve
 
 ## Bağımlılık taraması
 
-GitHub Actions'ta Node/npm bağımlılıkları `npm audit` ile tarandı. Uygulama ve arayüz için üretim bağımlılıkları; masaüstü paketleyici için geliştirme bağımlılıkları dahil edilmiştir. İlgili iş: [bağımlılık denetimi](https://github.com/sendagburak/dersteyim/actions/runs/41825556614).
+GitHub Actions'ta Node/npm bağımlılıkları `npm audit` ile tarandı. Uygulama ve arayüz için üretim bağımlılıkları; masaüstü paketleyici için geliştirme bağımlılıkları dahil edilmiştir. İlgili iş: [bağımlılık denetimi](https://github.com/sendagburak/varyok/actions/runs/41825556614).
 
 | Bileşen | Sonuç |
 | --- | --- |
