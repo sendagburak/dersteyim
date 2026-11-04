@@ -147,3 +147,33 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Dersteyim verileri ve derleme çıktıları
+node_modules/
+client/node_modules/
+client/dist/
+desktop/node_modules/
+bin/
+dist_installer/
+data/
+school-data/
+client-data/
+authority/private-data/
+yedekler/
+Yoklamalar/
+.env
+.env.*
+!.env.example
+!.env.central.example
+*.log
+*.db
+*.db-shm
+*.db-wal
+*.xlsx
+*.dersteyim
+ilk-giris.txt
+Kullanici_Bilgileri_*.txt
+server-control.json
+encryption-key.json
+installation-key.json
+push-keys.json

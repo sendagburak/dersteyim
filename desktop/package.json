@@ -1,0 +1,36 @@
+{
+  "name": "varyok-desktop",
+  "version": "1.3.0",
+  "description": "VarYok çevrimdışı masaüstü yoklama uygulaması",
+  "author": "Niğde İl Millî Eğitim Müdürlüğü - YEĞİTEK Birimi",
+  "license": "MIT",
+  "main": "main.cjs",
+  "scripts": {"start": "electron .", "dist": "electron-builder --win nsis portable --x64 --publish never"},
+  "devDependencies": {"electron": "45.2.0", "electron-builder": "26.18.1"},
+  "build": {
+    "appId": "tr.gov.meb.nigde.varyok",
+    "productName": "VarYok",
+    "asar": true,
+    "directories": {"output": "../dist_installer", "buildResources": "../assets"},
+    "files": ["main.cjs", "backend-process.cjs", "data-path.cjs", "package.json"],
+    "extraResources": [
+      {"from": "../backend", "to": "dersteyim/backend"},
+      {"from": "../scripts/setup.js", "to": "dersteyim/scripts/setup.js"},
+      {"from": "../client/dist", "to": "dersteyim/client/dist"},
+      {"from": "../node_modules", "to": "dersteyim/node_modules", "filter": ["**/*", "!**/.bin/**", "!**/test/**", "!**/tests/**"]},
+      {"from": "../assets", "to": "dersteyim/assets"},
+      {"from": "../resources", "to": "dersteyim/resources"},
+      {"from": "../bin/node.exe", "to": "dersteyim/bin/node.exe"},
+      {"from": "../LICENSE", "to": "dersteyim/LICENSE"},
+      {"from": "../licenses/NODE-LICENSE.txt", "to": "dersteyim/NODE-LICENSE.txt"},
+      {"from": "../client/node_modules/react/LICENSE", "to": "dersteyim/licenses/react-LICENSE.txt"},
+      {"from": "../client/node_modules/react-dom/LICENSE", "to": "dersteyim/licenses/react-dom-LICENSE.txt"},
+      {"from": "../client/node_modules/scheduler/LICENSE", "to": "dersteyim/licenses/scheduler-LICENSE.txt"},
+      {"from": "../client/node_modules/lucide-react/LICENSE", "to": "dersteyim/licenses/lucide-react-LICENSE.txt"},
+      {"from": "../client/node_modules/tailwindcss/LICENSE", "to": "dersteyim/licenses/tailwindcss-LICENSE.txt"}
+    ],
+    "win": {"icon": "../assets/varyok.ico", "target": ["nsis", "portable"]},
+    "nsis": {"oneClick": false, "allowToChangeInstallationDirectory": true, "perMachine": false, "deleteAppDataOnUninstall": false, "include": "installer.nsh", "artifactName": "VarYok-Kurulum-${version}-${arch}.${ext}"},
+    "portable": {"artifactName": "VarYok-Tasinabilir-${version}-${arch}.${ext}"}
+  }
+}

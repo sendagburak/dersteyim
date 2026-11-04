@@ -1,0 +1,40 @@
+name: Bağımlılık güvenlik denetimi
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  npm-audit:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: uygulama
+            dir: .
+            install: npm ci --ignore-scripts --no-fund --no-audit
+            audit: npm audit --omit=dev --audit-level=high
+          - name: arayuz
+            dir: client
+            install: npm ci --ignore-scripts --no-fund --no-audit
+            audit: npm audit --omit=dev --audit-level=high
+          - name: masaustu
+            dir: desktop
+            install: npm install --ignore-scripts --no-fund --no-audit
+            audit: npm audit --audit-level=high
+    name: npm audit - ${{ matrix.name }}
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Bağımlılıkları kurulum betiklerini çalıştırmadan hazırla
+        run: ${{ matrix.install }}
+      - name: Yüksek ve kritik düzeyde bildirilen açıklıkları denetle
+        run: ${{ matrix.audit }}

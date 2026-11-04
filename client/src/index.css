@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark body, body.dark-mode {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.panel { background: #fff; color: #1e293b; padding: 1.5rem; border: 1px solid #cbd5e1; border-radius: 1rem; }
+.dark .panel { background: #0f172a; color: #e2e8f0; border-color: #334155; }
+.panel input, .panel select, .panel textarea { width: 100%; min-height: 2.6rem; border: 1px solid #94a3b8; border-radius: .5rem; padding: .5rem .7rem; background: transparent; color: inherit; }
+.panel select option { color: #0f172a; background: white; }
+.action { background: #1d4ed8; color: white; border-radius: .5rem; padding: .65rem 1rem; font-weight: 600; }
+button { cursor: pointer; }
+button:disabled { opacity: .5; cursor: not-allowed; }
+:focus-visible { outline: 3px solid #0891b2; outline-offset: 2px; }
+td, th { text-align: left; }
+.panel td, .panel th { padding: .65rem; border-bottom: 1px solid #cbd5e1; }
+
+.text-slate-400 { color: #64748b; }
+.dark .text-slate-400 { color: #cbd5e1; }
+.dark .text-slate-500 { color: #94a3b8; }
