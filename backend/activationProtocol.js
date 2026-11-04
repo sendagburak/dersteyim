@@ -11,7 +11,7 @@ function schoolInfo(value) {
 }
 function publicDer(key,type) {try{const k=crypto.createPublicKey({key:Buffer.from(key,'base64'),format:'der',type:'spki'});if(k.asymmetricKeyType!==type)problem('Anahtar türü yanlış.');return k;}catch{problem('Kurulum anahtarı geçersiz.');} }
 function validateRequest(r) {
-  if(!r||r.format!=='dersteyim-request'||r.version!==1||!/^[a-f0-9-]{36}$/i.test(r?.installation_id||''))problem('Dersteyim talep dosyası geçersiz.');
+  if(!r||r.format!=='dersteyim-request'||r.version!==1||!/^[a-f0-9-]{36}$/i.test(r?.installation_id||''))problem('VarYok talep dosyası geçersiz.');
   publicDer(r.encryption_public,'x25519');publicDer(r.identity_public,'ed25519');
   const result={format:'dersteyim-request',version:1,installation_id:r.installation_id,school:schoolInfo(r.school),encryption_public:r.encryption_public,identity_public:r.identity_public};
   if(!verifyObject(result,r.signature,r.identity_public))problem('Talep dosyasının bütünlüğü doğrulanamadı.');

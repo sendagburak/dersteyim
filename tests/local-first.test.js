@@ -17,8 +17,8 @@ test('first user initializes one local school without a grant and receives a loc
   const result=await req('/api/setup/local',{username:'okul.yonetim',password:'Ornek-Yalnizca-Test-2026'},null);
   assert.equal(result.status,201,JSON.stringify(result));assert.equal((await req('/api/setup/status')).body.activated,true);
   assert.equal((await req('/api/setup/local',{username:'ikinci',password:'Baska-Yalnizca-Test-2026'},null)).status,409);
-  const entries=fs.readdirSync(path.join(process.env.DERSTEYIM_DOCUMENTS_DIR,'Dersteyim'),{recursive:true}).filter(x=>x.endsWith('.txt'));
-  assert.equal(entries.length,1);const contents=fs.readFileSync(path.join(process.env.DERSTEYIM_DOCUMENTS_DIR,'Dersteyim',entries[0]),'utf8');
+  const entries=fs.readdirSync(path.join(process.env.DERSTEYIM_DOCUMENTS_DIR,'VarYok'),{recursive:true}).filter(x=>x.endsWith('.txt'));
+  assert.equal(entries.length,1);const contents=fs.readFileSync(path.join(process.env.DERSTEYIM_DOCUMENTS_DIR,'VarYok',entries[0]),'utf8');
   assert.match(contents,/okul\.yonetim/);assert.match(contents,/Ornek-Yalnizca-Test-2026/);
   const auth=await req('/api/auth/login',{usernameOrEmail:'okul.yonetim',password:'Ornek-Yalnizca-Test-2026'},null);assert.equal(auth.status,200);token=auth.body.token;assert.equal(auth.body.user.role,'admin');
 });
@@ -38,12 +38,12 @@ test('updating a saved lesson writes a fresh report and does not overwrite the e
 });
 test('password change updates the local credentials file',async()=>{
   const r=await req('/api/auth/password',{currentPassword:'Ornek-Yalnizca-Test-2026',newPassword:'Degistirilmis-Test-2026'});assert.equal(r.status,200);
-  const root=path.join(process.env.DERSTEYIM_DOCUMENTS_DIR,'Dersteyim');const entry=fs.readdirSync(root,{recursive:true}).find(x=>x.endsWith('.txt'));const contents=fs.readFileSync(path.join(root,entry),'utf8');assert.match(contents,/Degistirilmis-Test-2026/);assert.doesNotMatch(contents,/Ornek-Yalnizca-Test-2026/);
+  const root=path.join(process.env.DERSTEYIM_DOCUMENTS_DIR,'VarYok');const entry=fs.readdirSync(root,{recursive:true}).find(x=>x.endsWith('.txt'));const contents=fs.readFileSync(path.join(root,entry),'utf8');assert.match(contents,/Degistirilmis-Test-2026/);assert.doesNotMatch(contents,/Ornek-Yalnizca-Test-2026/);
 });
 test('additional local user credentials are saved and password reset replaces the correct file',async()=>{
  const initial='Ogretmen-Test-Sifresi-2026',changed='Yenilenmis-Test-Sifresi-2026';
  const create=await req('/api/users/create',{role:'teacher',username:'test.ogretmen',email:'teacher@example.invalid',password:initial,full_name:'Test Öğretmen'});assert.equal(create.status,201,JSON.stringify(create));
- const root=path.join(process.env.DERSTEYIM_DOCUMENTS_DIR,'Dersteyim');
+ const root=path.join(process.env.DERSTEYIM_DOCUMENTS_DIR,'VarYok');
  const txt=()=>fs.readdirSync(root,{recursive:true}).filter(x=>x.endsWith('.txt')).map(x=>fs.readFileSync(path.join(root,x),'utf8'));
  assert.ok(txt().some(x=>x.includes('test.ogretmen')&&x.includes(initial)));
  const reset=await req(`/api/users/${create.body.userId}/reset-password`,{password:changed});assert.equal(reset.status,200);assert.ok(txt().some(x=>x.includes('test.ogretmen')&&x.includes(changed)));assert.ok(!txt().some(x=>x.includes(initial)));

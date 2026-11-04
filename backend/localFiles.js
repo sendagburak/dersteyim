@@ -20,7 +20,10 @@ function knownFolder(kind) {
 }
 function credentialsDir() {
   const profile = crypto.createHash('sha256').update(config.DATA_DIR).digest('hex').slice(0,12);
-  return path.join(knownFolder('Documents'),'Dersteyim',profile);
+  const documents = knownFolder('Documents');
+  const current = path.join(documents,'VarYok',profile);
+  const legacy = path.join(documents,'Dersteyim',profile);
+  return !fs.existsSync(current) && fs.existsSync(legacy) ? legacy : current;
 }
 function credentialPath(username) {
   const name = crypto.createHash('sha256').update(username.toLocaleLowerCase('tr-TR')).digest('hex').slice(0,12);
@@ -29,7 +32,7 @@ function credentialPath(username) {
 function saveCredential(username,password,{initial=false}={}) {
   const folder=credentialsDir(); fs.mkdirSync(folder,{recursive:true,mode:0o700});
   const filename=credentialPath(username);
-  const content=`DERSTEYİM YEREL GİRİŞ BİLGİLERİ\r\nKullanıcı adı: ${username}\r\nŞifre: ${password}\r\n\r\nBu dosyayı okuyabilen kişiler hesabınıza erişebilir. Güvenli bir Windows hesabında saklayın.\r\n`;
+  const content=`VARYOK YEREL GİRİŞ BİLGİLERİ\r\nKullanıcı adı: ${username}\r\nŞifre: ${password}\r\n\r\nBu dosyayı okuyabilen kişiler hesabınıza erişebilir. Güvenli bir Windows hesabında saklayın.\r\n`;
   if(initial){fs.writeFileSync(filename,content,{encoding:'utf8',flag:'wx',mode:0o600});return filename;}
   const temporary=filename+'.'+crypto.randomBytes(8).toString('hex')+'.tmp';
   try{fs.writeFileSync(temporary,content,{encoding:'utf8',flag:'wx',mode:0o600});fs.renameSync(temporary,filename);}catch(e){try{fs.unlinkSync(temporary);}catch{}throw e;}
@@ -41,7 +44,7 @@ function openCredentialsFolder() {
   const program=process.platform==='win32'?'explorer.exe':process.platform==='darwin'?'open':'xdg-open';
   return new Promise((resolve,reject)=>{
     const p=spawn(program,[dir],{detached:true,stdio:'ignore',windowsHide:true});
-    p.once('error',()=>reject(Object.assign(new Error('Klasör otomatik açılamadı. Belgeler/Dersteyim klasörünü elle açın.'),{status:500})));
+    p.once('error',()=>reject(Object.assign(new Error('Klasör otomatik açılamadı. Belgeler/VarYok klasörünü elle açın.'),{status:500})));
     p.once('spawn',()=>{p.unref();resolve();});
   });
 }

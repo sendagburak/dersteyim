@@ -14,7 +14,7 @@ async function createReport(schoolClass,date,at=new Date()) {
     JOIN students s ON s.id=r.student_id JOIN users u ON u.id=a.recorded_by_teacher_id
     WHERE a.class_id=? AND a.date=? AND r.status='GELMEDI'
     ORDER BY a.period,CAST(s.student_no AS INTEGER),s.student_no`).all(schoolClass.id,date);
-  const book=new ExcelJS.Workbook();book.creator='Dersteyim';book.created=at;
+  const book=new ExcelJS.Workbook();book.creator='VarYok';book.created=at;
   const sheet=book.addWorksheet('Gelmeyenler');sheet.columns=[
     {header:'Öğrenci No',key:'student_no',width:18},{header:'Öğrenci (maskeli)',key:'masked_name',width:34},
     {header:'Ders',key:'period',width:12},{header:'Yoklama kayıt zamanı',key:'saved_at_turkey_time',width:24},{header:'Kaydeden',key:'teacher_name',width:26}

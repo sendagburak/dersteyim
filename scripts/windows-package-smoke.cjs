@@ -69,7 +69,7 @@ async function main() {
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(path.join(reportsRoot, reports[0]));
     assert.match(JSON.stringify(workbook.worksheets[0].getSheetValues()), /101/);
-    const credentialsRoot = path.join(documents, 'Dersteyim');
+    const credentialsRoot = path.join(documents, 'VarYok');
     assert.ok(fs.readdirSync(credentialsRoot, { recursive: true }).some(name => String(name).endsWith('.txt')));
     console.log('Paketlenmiş EXE başladı; örnek hesap, gelecek yıl ve yoklama XLSX kontrol edildi.');
   } finally {

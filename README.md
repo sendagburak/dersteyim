@@ -1,6 +1,8 @@
-# Dersteyim
+# VarYok
 
-Dersteyim, okul yoklamalarını bilgisayarda tutmak üzere geliştirilen açık kaynaklı bir Windows masaüstü uygulamasıdır. Bu kaynak paketi 1.3 için geliştirme sürümüdür. **Windows EXE derlemesi ve gerçek Windows kurulum, kaldırma ve arayüz testleri henüz doğrulanmamıştır; okullara üretim sürümü olarak dağıtmayın.**
+VarYok, okul yoklamalarını bilgisayarda tutmak üzere geliştirilen açık kaynaklı bir Windows masaüstü uygulamasıdır. Bu kaynak paketi 1.3 için geliştirme sürümüdür. **Windows EXE derlemesi ve gerçek Windows kurulum, kaldırma ve arayüz testleri henüz doğrulanmamıştır; okullara üretim sürümü olarak dağıtmayın.**
+
+Projenin önceki adı Dersteyim'di. Önceki masaüstü sürümünün veri klasörü bulunursa, yeni klasör henüz yokken mevcut kayıtlar olduğu yerde açılır; eski dosyalar silinmez. Giriş bilgileri de önceki klasörde kalmış olabilir. Her iki veri klasörü de varsa otomatik birleştirme yapılmaz; işlemden önce her iki klasörün güvenli yedeğini alın.
 
 ## Kullanım biçimi
 
@@ -13,7 +15,7 @@ Dersteyim, okul yoklamalarını bilgisayarda tutmak üzere geliştirilen açık 
 
 ## Giriş bilgileri ve gizlilik
 
-Kullanıcıların şifreleri istenen işleyiş gereği **Belgeler/Dersteyim** altında okunabilir TXT dosyalarında tutulur. Bu dosyaya ulaşabilen herkes ilgili hesaba girebilir. Bilgisayar hesabını ve diski koruyun; giriş bilgilerini, öğrencilerin verilerini ve veritabanı anahtarlarını GitHub'a yüklemeyin. Şifre dosyasında kullanıcı adı ve şifre görüntülenebilir. Uygulama giriş ekranındaki **Şifremi unuttum** düğmesi bu klasörü açmayı dener.
+Kullanıcıların şifreleri istenen işleyiş gereği **Belgeler/VarYok** altında okunabilir TXT dosyalarında tutulur. Bu dosyaya ulaşabilen herkes ilgili hesaba girebilir. Bilgisayar hesabını ve diski koruyun; giriş bilgilerini, öğrencilerin verilerini ve veritabanı anahtarlarını GitHub'a yüklemeyin. Şifre dosyasında kullanıcı adı ve şifre görüntülenebilir. Uygulama giriş ekranındaki **Şifremi unuttum** düğmesi bu klasörü açmayı dener.
 
 Bu uygulamanın kullanılması tek başına KVKK'ya uygunluk garantisi veya resmî uygunluk belgesi sağlamaz. Kullanıcı ve kurum gerekli idari ve teknik tedbirleri ayrıca değerlendirmelidir.
 

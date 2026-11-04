@@ -17,7 +17,7 @@ async function notifyUsers(userIds,title,body){
     if(!PUSH_ENABLED)continue;
     const subscriptions=db.prepare('SELECT * FROM push_subscriptions WHERE user_id=?').all(userId);
     if(subscriptions.length)loadKeys();
-    for(const s of subscriptions){try{const data=JSON.parse(decryptSensitiveData(s.encrypted_subscription));await webpush.sendNotification(data,JSON.stringify({title:'Dersteyim',body:'Yeni bir okul bildiriminiz var. Ayrıntıları uygulamada görüntüleyin.',url:'/'}),{TTL:3600,urgency:'high',timeout:10000});accepted++;}catch(e){failed++;if([404,410].includes(e.statusCode))db.prepare('DELETE FROM push_subscriptions WHERE id=?').run(s.id);}}
+    for(const s of subscriptions){try{const data=JSON.parse(decryptSensitiveData(s.encrypted_subscription));await webpush.sendNotification(data,JSON.stringify({title:'VarYok',body:'Yeni bir okul bildiriminiz var. Ayrıntıları uygulamada görüntüleyin.',url:'/'}),{TTL:3600,urgency:'high',timeout:10000});accepted++;}catch(e){failed++;if([404,410].includes(e.statusCode))db.prepare('DELETE FROM push_subscriptions WHERE id=?').run(s.id);}}
   }
   return {inboxRecipients:unique.length,pushAccepted:accepted,pushFailed:failed};
 }

@@ -38,7 +38,7 @@ function createLocalAccount(username,pass){
       const uid=Number(db.prepare("INSERT INTO users(school_id,username,email,password_hash,role,full_name,title,created_at,must_change_password) VALUES(?,?,?,?,'admin',?,'Yerel kullanıcı',?,0)").run(sid,username,'yerel@localhost.invalid',hash,username,config.formatTurkeyDateTime()).lastInsertRowid);
       db.prepare('INSERT INTO school_installation VALUES(1,?,?,?)').run(sid,JSON.stringify({format:'dersteyim-local-school',version:1}),config.formatTurkeyDateTime());
       enforceSchoolDatabase(sid);logAudit({user_id:uid,user_name:username,role:'admin',action:'LOCAL_SETUP',resource_type:'SCHOOL',resource_id:sid});
-      return {success:true,message:'Yerel hesap oluşturuldu. Kullanıcı adı ve şifre Belgeler/Dersteyim klasörüne kaydedildi.'};
+      return {success:true,message:'Yerel hesap oluşturuldu. Kullanıcı adı ve şifre Belgeler/VarYok klasörüne kaydedildi.'};
     })();
   }catch(e){if(file)try{require('node:fs').unlinkSync(file);}catch{}throw e;}
 }

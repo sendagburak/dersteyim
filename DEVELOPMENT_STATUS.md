@@ -1,4 +1,4 @@
-# Dersteyim 1.3 geliştirme durumu
+# VarYok 1.3 geliştirme durumu
 
 Bu arşiv kaynak kodudur. Windows için kullanıma hazır veya doğrulanmış bir EXE içermez.
 

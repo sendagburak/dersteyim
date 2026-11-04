@@ -67,7 +67,7 @@ test('Attendance complete roster validation, server actor and timestamps, queue 
 });
 test('SMTP failure never marked sent; pending cancellation prevents send; repeated sends blocked',async()=>{
   const q=db.prepare("SELECT * FROM notification_queue WHERE status='PENDING'").get();const r=await req(`/api/attendance/queue/${q.id}/send-now`,{},'admin');assert.equal(r.status,409);assert.equal(db.prepare('SELECT status FROM notification_queue WHERE id=?').get(q.id).status,'PENDING');assert.equal(db.prepare('SELECT count(*) AS n FROM sent_notifications').get().n,0);
-  sendOK=true;const sent=await req(`/api/attendance/queue/${q.id}/send-now`,{},'admin');assert.equal(sent.status,200);assert.equal(db.prepare('SELECT status FROM notification_queue WHERE id=?').get(q.id).status,'SENT');assert.equal(db.prepare('SELECT count(*) AS n FROM sent_notifications').get().n,1);assert.match(lastMail.html,/Dersteyim/);
+  sendOK=true;const sent=await req(`/api/attendance/queue/${q.id}/send-now`,{},'admin');assert.equal(sent.status,200);assert.equal(db.prepare('SELECT status FROM notification_queue WHERE id=?').get(q.id).status,'SENT');assert.equal(db.prepare('SELECT count(*) AS n FROM sent_notifications').get().n,1);assert.match(lastMail.html,/VarYok/);
   const count=mailCount;assert.equal((await req(`/api/attendance/queue/${q.id}/send-now`,{},'admin')).status,409);assert.equal(mailCount,count);
   const cancelled=db.prepare("SELECT id FROM notification_queue WHERE status='CANCELLED'").get();assert.equal((await deliverNotification(cancelled.id,true)).success,false);assert.equal(mailCount,count);
 });

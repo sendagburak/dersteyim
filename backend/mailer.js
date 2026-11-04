@@ -14,7 +14,7 @@ async function sendAbsenteeEmail(item) {
   const subject=`Öğrenci yoklama bildirimi — ${item.studentMaskedName} (${item.className})`;
   const body=`Öğrenci: ${item.studentMaskedName}\nSınıf: ${item.className}\nDers: ${item.periodName}\nDurum: GELMEDİ\nKayıt zamanı (Türkiye): ${item.absentTimeTurkey}\nKaydeden: ${item.teacherName}\nMazeret veya kayıt düzeltme talepleri için okul idaresiyle iletişime geçiniz.`;
   try {
-    const result=await transporter.sendMail({from:SMTP_CONFIG.from,to:item.parentEmail,subject,text:body,html:`<div lang="tr" style="font:16px sans-serif;max-width:600px;margin:auto"><h2>Dersteyim · Yoklama bildirimi</h2><p style="white-space:pre-line">${escape(body)}</p></div>`,priority:'high',messageId:`<attendance-${item.queueId}@dersteyim.local>`});
+    const result=await transporter.sendMail({from:SMTP_CONFIG.from,to:item.parentEmail,subject,text:body,html:`<div lang="tr" style="font:16px sans-serif;max-width:600px;margin:auto"><h2>VarYok · Yoklama bildirimi</h2><p style="white-space:pre-line">${escape(body)}</p></div>`,priority:'high',messageId:`<attendance-${item.queueId}@dersteyim.local>`});
     if(!result.accepted?.length) return {success:false,error:'SMTP sunucusu alıcıyı kabul etmedi.'};
     return {success:true,subject,body,messageId:result.messageId};
   } catch(err) { return {success:false,error:`SMTP gönderimi başarısız (${err.code||'CONNECTION_ERROR'}).`}; }

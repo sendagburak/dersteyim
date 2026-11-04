@@ -113,12 +113,12 @@ router.get('/schools',(req,res)=>res.json({success:true,schools:req.user.role===
 router.post('/system/backup',async(req,res)=>{
   admin(req);require('../installation').requireLocal(req);
   const fs=require('node:fs'),path=require('node:path'),{backup}=require('node:sqlite'),{knownFolder}=require('../localFiles');
-  const root=path.join(knownFolder('Documents'),'Dersteyim Yedekleri');fs.mkdirSync(root,{recursive:true,mode:0o700});
+  const root=path.join(knownFolder('Documents'),'VarYok Yedekleri');fs.mkdirSync(root,{recursive:true,mode:0o700});
   const stamp=nowText().replace(/[.: ]/g,'-'),folder=path.join(root,`${stamp}-${crypto.randomBytes(3).toString('hex')}`);fs.mkdirSync(folder,{mode:0o700});
   try{
     await backup(db,path.join(folder,'eyoklama.db'));
     for(const name of ['encryption-key.json','installation-key.json','.key-required']){const src=path.join(config.DATA_DIR,name);if(fs.existsSync(src))fs.copyFileSync(src,path.join(folder,name));}
-    fs.writeFileSync(path.join(folder,'BILGI.txt'),'Veritabanı ve şifreleme anahtarı birlikte saklanmalıdır. Şifrelerin bulunduğu Belgeler/Dersteyim klasörü bu yedeğe dahil değildir. Yedek kişisel veri içerir; güvenli bir yerde tutun.\r\n',{mode:0o600});
+    fs.writeFileSync(path.join(folder,'BILGI.txt'),'Veritabanı ve şifreleme anahtarı birlikte saklanmalıdır. Şifrelerin bulunduğu Belgeler/VarYok klasörü bu yedeğe dahil değildir. Yedek kişisel veri içerir; güvenli bir yerde tutun.\r\n',{mode:0o600});
   }catch(e){fs.rmSync(folder,{recursive:true,force:true});throw e;}
   audit(req,'BACKUP_CREATED','SYSTEM',null);res.json({success:true,path:folder,message:`Yedek oluşturuldu: ${folder}`});
 });

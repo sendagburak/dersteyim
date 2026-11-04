@@ -1,7 +1,7 @@
 {
-  "name": "e-yoklama-sistemi",
+  "name": "varyok",
   "version": "1.3.0",
-  "description": "Dersteyim okul yoklama ve veli bilgilendirme sistemi",
+  "description": "VarYok okul yoklama ve veli bilgilendirme sistemi",
   "main": "backend/server.js",
   "scripts": {
     "start": "npm --prefix desktop start",

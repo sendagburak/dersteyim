@@ -8,9 +8,9 @@ async function stopPrevious(dataDir){
  try{const response=await fetch(url+'/api/health',{signal:AbortSignal.timeout(600)});health=await response.json();}catch{return;}
  if(health.application!=='dersteyim'||health.instanceId!==old.instanceId)return;
  const response=await fetch(url+'/internal/shutdown',{method:'POST',headers:{'X-Control-Token':old.token},signal:AbortSignal.timeout(1500)});
- if(!response.ok)throw new Error('Önceki Dersteyim oturumu kapatılamadı.');
+ if(!response.ok)throw new Error('Önceki VarYok oturumu kapatılamadı.');
  for(let i=0;i<120;i++){try{await fetch(url+'/api/health',{signal:AbortSignal.timeout(200)});}catch{return;}await delay(100);}
- throw new Error('Önceki Dersteyim oturumu kapanmadı.');
+ throw new Error('Önceki VarYok oturumu kapanmadı.');
 }
 async function startBackend({nodeBinary,root,dataDir,extraEnv={}}){
  fs.mkdirSync(dataDir,{recursive:true,mode:0o700});await stopPrevious(dataDir);const port=await freePort(),url=`http://127.0.0.1:${port}`;

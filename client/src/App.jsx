@@ -629,7 +629,7 @@ export default function App({deployment}) {
   const isSuperAdmin = currentUser?.role === 'superadmin';
   const isAnyAdmin = currentUser?.role === 'superadmin' || currentUser?.role === 'admin';
 
-  if (authLoading) return <div role="status" className="min-h-screen grid place-items-center">Dersteyim yükleniyor…</div>;
+  if (authLoading) return <div role="status" className="min-h-screen grid place-items-center">VarYok yükleniyor…</div>;
   if (currentUser?.must_change_password) return <Account request={apiFetch} user={currentUser} forced onChanged={refreshSession} onLogout={handleLogout}/>;
   if (currentUser && ['parent','student'].includes(currentUser.role)) return <FamilyPortal user={currentUser} request={apiFetch} onLogout={handleLogout}/>;
   // LOGIN SCREEN (If not authenticated)
@@ -639,7 +639,7 @@ export default function App({deployment}) {
         <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800 p-8">
           <div className="text-center mb-6">
             <div className="bg-white dark:bg-slate-800 p-3 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 inline-block mb-3">
-              <img src="/dersteyim-logo.png" alt="Dersteyim" className="h-16 w-auto object-contain mx-auto" />
+              <img src="/varyok-logo.png" alt="VarYok" className="h-16 w-auto object-contain mx-auto" />
             </div>
             <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
               ders<span className="text-cyan-600 dark:text-cyan-400">teyim</span>
@@ -740,7 +740,7 @@ export default function App({deployment}) {
           {/* Logo & School Title & Niğde MEM YEĞİTEK Attribution */}
           <div className="flex items-center space-x-3">
             <div className="bg-white p-1 rounded-2xl shadow-sm border border-cyan-400/30 flex items-center justify-center">
-              <img src="/dersteyim-square.png" alt="Dersteyim" className="w-9 h-9 object-contain rounded-xl" />
+              <img src="/varyok-square.png" alt="VarYok" className="w-9 h-9 object-contain rounded-xl" />
             </div>
             <div>
               <div className="flex items-center space-x-2">

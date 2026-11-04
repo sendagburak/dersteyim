@@ -20,7 +20,7 @@ function ensureSetup(){
       }else db.prepare('UPDATE users SET password_hash=?,must_change_password=1 WHERE id=?').run(hashPassword(pass),root.id);
       db.prepare('DELETE FROM sessions WHERE user_id=?').run(root.id);
     })();
-    fs.writeFileSync(path.join(DATA_DIR,'ilk-giris.txt'),`DERSTEYİM — İLK GİRİŞ\nKullanıcı adı: ${root.username}\nGeçici şifre: ${pass}\nİlk girişte şifrenizi değiştirin. Bu dosyayı sonrasında silin.\nDiğer mevcut hesapların bilinen örnek şifreleri devre dışıdır; kullanıcı yönetiminden geçici şifre verin.\n`,{mode:0o600});
+    fs.writeFileSync(path.join(DATA_DIR,'ilk-giris.txt'),`VARYOK — İLK GİRİŞ\nKullanıcı adı: ${root.username}\nGeçici şifre: ${pass}\nİlk girişte şifrenizi değiştirin. Bu dosyayı sonrasında silin.\nDiğer mevcut hesapların bilinen örnek şifreleri devre dışıdır; kullanıcı yönetiminden geçici şifre verin.\n`,{mode:0o600});
     console.log('İlk giriş bilgileri data/ilk-giris.txt dosyasına yazıldı.');
   }
   fs.writeFileSync(marker,'1.1.0',{mode:0o600});

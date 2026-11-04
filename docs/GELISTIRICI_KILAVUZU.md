@@ -1,4 +1,4 @@
-# Dersteyim geliştirme ve dağıtım kılavuzu
+# VarYok geliştirme ve dağıtım kılavuzu
 
 Bu belge geliştiriciler ve dağıtım ekibi içindir. 1.3 kaynak değişikliklerinin Windows paketleme adımları taslaktır; EXE ve gerçek Windows kurulumu henüz doğrulanmamıştır.
 
