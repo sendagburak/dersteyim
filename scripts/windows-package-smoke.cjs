@@ -60,7 +60,8 @@ async function main() {
     const students = await request(`/api/students?classId=${cls.id}`, undefined, token);
     const pupil = students.students.find(item => item.student_no === '101');
     assert.ok(pupil, 'Örnek öğrenci oluşturulamadı.');
-    const saved = await request('/api/attendance/save', { classId: cls.id, period: 1, records: { [pupil.id]: 'GELMEDI' } }, token);
+    const lessons = [1,2,3,4].map(period => ({period, records:{[pupil.id]:period<=3?'GELMEDI':'GELDI'}, expectedSavedTimestamp:null, note:period===1?'Örnek ders notu':''}));
+    const saved = await request('/api/attendance/save-batch', { classId: cls.id, periods: lessons }, token);
     assert.equal(saved.export.success, true, 'Excel raporu yazılamadı.');
     const reportsRoot = path.join(desktop, 'Yoklamalar');
     const reports = fs.readdirSync(reportsRoot, { recursive: true }).filter(name => String(name).endsWith('.xlsx'));
@@ -68,7 +69,16 @@ async function main() {
     assert.match(String(reports[0]), /6-A_\d{2}\.\d{2}\.\d{4}_\d{2}-\d{2}\.xlsx$/);
     const workbook = new ExcelJS.Workbook();
     await workbook.xlsx.readFile(path.join(reportsRoot, reports[0]));
-    assert.match(JSON.stringify(workbook.worksheets[0].getSheetValues()), /101/);
+    const row=workbook.worksheets[0].getRow(2);
+    assert.equal(String(row.getCell(1).value),'101');
+    assert.deepEqual(row.values.slice(3,8),['Gelmedi','Gelmedi','Gelmedi','Geldi','Kayıt yok']);
+    assert.match(row.getCell(11).value,/Gelmedi/);assert.match(row.getCell(12).value,/Örnek ders notu/);
+    const later=await request('/api/attendance/save-batch',{classId:cls.id,periods:[{period:5,records:{[pupil.id]:'GELDI'},expectedSavedTimestamp:null}]},token);
+    assert.equal(later.export.filename,saved.export.filename);
+    const updatedReports=fs.readdirSync(reportsRoot,{recursive:true}).filter(name=>String(name).endsWith('.xlsx'));
+    assert.equal(updatedReports.length,1,'Gün içinde sınıf için tek güncel rapor bulunmalı.');
+    const updated=new ExcelJS.Workbook();await updated.xlsx.readFile(saved.export.filename);
+    assert.equal(updated.worksheets[0].getRow(2).getCell(7).value,'Geldi');
     const credentialsRoot = path.join(documents, 'VarYok');
     assert.ok(fs.readdirSync(credentialsRoot, { recursive: true }).some(name => String(name).endsWith('.txt')));
     console.log('Paketlenmiş EXE başladı; örnek hesap, gelecek yıl ve yoklama XLSX kontrol edildi.');

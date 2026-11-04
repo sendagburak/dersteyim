@@ -12,6 +12,7 @@ import FamilyPortal from './FamilyPortal';
 import Notifications from './Notifications';
 import SchoolRecovery from './SchoolRecovery';
 import Guide from './Guide';
+import DailyAttendance from './DailyAttendance';
 import {createEmergencySound} from './emergencySound';
 
 export default function App({deployment}) {
@@ -1064,7 +1065,8 @@ export default function App({deployment}) {
         {activeTab === 'guide' && <Guide/>}
         {!allClasses.length && activeTab !== 'guide' && <p className="panel mb-4">{schoolMode && isAnyAdmin ? 'Henüz sınıf yok. Okul / sınıf kurulumu bölümünden sınıfları ve öğrencileri ekleyin. Ek kullanıcı veya ders programı zorunlu değildir.' : 'Henüz erişebildiğiniz sınıf yok. Okul / sınıf kurulumu bölümünden sınıf ve ders programı tanımlayın.'}</p>}
         {/* TAB 1: ATTENDANCE */}
-        {activeTab === 'attendance' && (
+        {activeTab === 'attendance' && schoolMode && isAnyAdmin && <DailyAttendance request={apiFetch} classes={allClasses} periods={periods} classId={selectedClassId} onClassChange={setSelectedClassId} date={attendanceDate} onDateChange={setAttendanceDate} today={turkeyTime.date} downloadFile={downloadFile}/>}
+        {activeTab === 'attendance' && !(schoolMode && isAnyAdmin) && (
           <div className="space-y-6">
             
             {/* Teacher Schedule Lock Alert */}

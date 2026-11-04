@@ -42,6 +42,10 @@ test('School isolation and teacher/parent restrictions cannot be spoofed',async(
   assert.equal((await req('/api/schools',{name:'bad'},'admin')).status,403);
   assert.equal((await req('/api/users/create',{creatorId:root,role:'superadmin'},'admin')).status,403);
   assert.equal((await req('/api/attendance/save',{classId:c1,period:1,records:{[student1]:'GELDI'}},'parent')).status,403);
+  assert.equal((await req('/api/attendance/save-batch',{classId:c1,periods:[]},'teacher')).status,403);
+  assert.equal((await req('/api/attendance/save-batch',{classId:c2,periods:[]},'admin')).status,403);
+  assert.equal((await req(`/api/attendance/daily/${c1}`,undefined,'teacher')).status,403);
+  assert.equal((await req(`/api/attendance/daily/${c2}`,undefined,'admin')).status,403);
   const p=await req(`/api/attendance/class-students/${c1}`,undefined,'parent');assert.equal(p.body.students.length,1);assert.equal(p.body.students[0].full_name,undefined);
   assert.equal((await req(`/api/attendance/class-students/${c2}`,undefined,'parent')).status,403);
   assert.equal((await req('/api/kvkk/reveal',{studentId:student1,adminPassword:pass,reason:'test'},'teacher')).status,403);
