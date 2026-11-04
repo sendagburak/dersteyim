@@ -20,13 +20,16 @@ function addDailySheet(book,schoolClass,date,title='Günlük Yoklama'){
   const states=new Map(records.map(r=>[`${r.student_id}:${r.period}`,STATUS[r.status]||'Kayıt yok']));
   const notes=sessions.filter(s=>s.note).map(s=>`${s.period}. ders: ${s.note}`).join(' | ');
   const sheet=book.addWorksheet(title);
-  sheet.columns=[{header:'Öğrenci No',key:'student_no',width:16},{header:'Öğrenci (maskeli)',key:'student',width:26},
-    ...Array.from({length:8},(_,i)=>({header:`${i+1}. Ders`,key:`period${i+1}`,width:14})),
-    {header:'Açıklama',key:'summary',width:48},{header:'Ders Notları',key:'notes',width:40}];
+  sheet.columns=[{header:'Öğrenci No',key:'student_no',width:12},{header:'Öğrenci (maskeli)',key:'student',width:24},
+    ...Array.from({length:8},(_,i)=>({header:`${i+1}. Ders`,key:`period${i+1}`,width:11})),
+    {header:'Açıklama',key:'summary',width:38},{header:'Ders Notları',key:'notes',width:30}];
   sheet.getRow(1).font={name:'Calibri',bold:true,color:{argb:'FFFFFFFF'}};
   sheet.getRow(1).fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF18335C'}};
   sheet.getRow(1).alignment={vertical:'middle',wrapText:true};sheet.getRow(1).height=25;
   sheet.views=[{state:'frozen',xSplit:2,ySplit:1}];sheet.autoFilter={from:'A1',to:'L1'};
+  sheet.pageSetup={paperSize:9,orientation:'landscape',fitToPage:true,fitToWidth:1,fitToHeight:0,printTitlesRow:'1:1',margins:{left:.25,right:.25,top:.4,bottom:.4,header:.2,footer:.2}};
+  sheet.headerFooter.oddHeader=`&CVarYok · ${String(schoolClass.name).replace(/&/g,'&&')} · ${dateLabel(date)}`;
+  sheet.headerFooter.oddFooter='&R Sayfa &P / &N';
   let absentStudents=0;
   for(const pupil of pupils){
     const values=Array.from({length:8},(_,i)=>states.get(`${pupil.id}:${i+1}`)||'Kayıt yok');
@@ -37,6 +40,7 @@ function addDailySheet(book,schoolClass,date,title='Günlük Yoklama'){
     }).filter(Boolean).join(' | ');
     const row=sheet.addRow([pupil.student_no,pupil.masked_name,...values,summary,notes]);
     row.alignment={vertical:'middle',wrapText:true};
+    row.getCell(12).alignment={vertical:'middle',wrapText:true,indent:1};
     for(let i=0;i<values.length;i++){const cell=row.getCell(i+3);cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF'+COLORS[values[i]]}};cell.alignment={vertical:'middle',horizontal:'center',wrapText:true};}
   }
   return {sheet,absentStudents};

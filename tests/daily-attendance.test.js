@@ -62,6 +62,7 @@ test('one daily workbook shows every lesson status and the session explanation',
   assert.equal(files.length,2,'eski rapor ve yeni günlük rapor korunmalı');
   assert.equal(fs.readFileSync(path.join(folder,'6-A_02.01.2020_00-00.xlsx'),'utf8'),'eski rapor korunacak');
   const sheet=await readWorkbook(reportPath), header=sheet.getRow(1).values;
+  assert.equal(sheet.pageSetup.orientation,'landscape');assert.equal(sheet.pageSetup.fitToWidth,1);
   assert.deepEqual(header.slice(3,11),['1. Ders','2. Ders','3. Ders','4. Ders','5. Ders','6. Ders','7. Ders','8. Ders']);
   assert.equal(header[11],'Açıklama');assert.equal(header[12],'Ders Notları');
   const first=namedRow(sheet,'101');
