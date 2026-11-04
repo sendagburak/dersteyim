@@ -33,6 +33,8 @@ jobs:
         run: npm --prefix desktop run dist
       - name: Paketlenmiş EXE ile örnek kurulum ve yoklama testi
         run: node scripts/windows-package-smoke.cjs dist_installer/win-unpacked/Dersteyim.exe
+      - name: Taşınabilir EXE ile örnek kurulum ve yoklama testi
+        run: node scripts/windows-package-smoke.cjs dist_installer/Dersteyim-Tasinabilir-1.3.0-x64.exe
       - uses: actions/upload-artifact@v4
         with:
           name: Dersteyim-Windows-x64
