@@ -5,7 +5,7 @@ const PERIODS=Array.from({length:8},(_,i)=>i+1);
 const LABELS={GELDI:'Geldi',GELMEDI:'Gelmedi',GEC:'Geç',IZINLI:'İzinli'};
 const BUTTONS=[['GELDI','Geldi','bg-emerald-700'],['GELMEDI','Gelmedi','bg-red-700'],['GEC','Geç','bg-amber-700'],['IZINLI','İzinli','bg-blue-700']];
 
-export default function DailyAttendance({request,classes,periods,classId,onClassChange,date,onDateChange,today,downloadFile}) {
+export default function DailyAttendance({request,classes,periods,classId,onClassChange,date,onDateChange,today,downloadFile,onDirtyChange}) {
   const [selected,setSelected]=useState([1]);
   const [pupils,setPupils]=useState([]);
   const [byPeriod,setByPeriod]=useState({});
@@ -15,6 +15,8 @@ export default function DailyAttendance({request,classes,periods,classId,onClass
   const [message,setMessage]=useState('');
   const baseline=useRef({});
   const sequence=useRef(0);
+  useEffect(()=>{onDirtyChange(dirty.size>0);},[dirty.size,onDirtyChange]);
+  useEffect(()=>()=>onDirtyChange(false),[onDirtyChange]);
 
   const load=useCallback(async()=>{
     const id=++sequence.current;
@@ -43,7 +45,7 @@ export default function DailyAttendance({request,classes,periods,classId,onClass
   };
   const changeClassOrDate=(value,change)=>{
     if(dirty.size && !window.confirm('Kaydedilmemiş yoklama değişiklikleri silinecek. Devam etmek istiyor musunuz?'))return;
-    setMessage('');change(value);
+    setDirty(new Set());setMessage('');change(value);
   };
   const markStatus=(studentId,status)=>{
     setByPeriod(prev=>markStudent(prev,selected,studentId,status));
