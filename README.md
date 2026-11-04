@@ -42,7 +42,9 @@ npm install --prefix desktop --no-audit --no-fund
 npm --prefix desktop run dist
 ```
 
-Hazırlanan GitHub Actions iş akışı Windows üzerinde kurulum ve taşınabilir EXE üretmeyi amaçlar; bu iş akışı henüz çalıştırılarak doğrulanmamıştır. Üretilmiş dosyalar bulunuyorsa iş akışı çıktılarından indirilmeli, gerçek Windows cihazlarında sınandıktan sonra GitHub Releases bölümüne eklenmelidir.
+GitHub Actions iş akışı Windows üzerinde kurulum ve taşınabilir EXE üretir ve örnek verilerle temel çalışmayı sınar. Her değişiklikte ilgili işin sonucunu kontrol edin. Üretilmiş dosyalar, okul cihazlarında ve gerekli güvenlik ve kurum incelemelerinden sonra dağıtıma hazırlanmalıdır.
+
+Bağımlılıkların yüksek ve kritik düzeyde bilinen açıklıkları için ayrı bir `npm audit` iş akışı vardır. Bu denetim uygulama kodu ve işletim sisteminin tamamına yönelik bağımsız güvenlik taramasının yerine geçmez; her işin sonucu ve ilgili commit kontrol edilmelidir.
 
 Ayrıntılar: [Okul kullanım kılavuzu](docs/OKUL_KULLANIM.md) ve [geliştirme ve dağıtım notları](docs/GELISTIRICI_KILAVUZU.md).
 
