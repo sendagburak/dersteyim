@@ -1,6 +1,6 @@
 # VarYok 1.3 geliştirme durumu
 
-Bu arşiv kaynak kodudur. Windows için kullanıma hazır veya doğrulanmış bir EXE içermez.
+Bu depo kaynak kodudur. Windows iş akışının deneme çıktıları GitHub Actions üzerinde üretilir; kaynak deposunun kendisi bir EXE içermez.
 
 ## Yapılanlar
 
@@ -8,12 +8,11 @@ Yerel ilk kullanıcı oluşturma, şifre TXT dosyaları, sınıf ve gün bazınd
 
 ## Doğrulama
 
-Linux üzerinde Node ile 34 otomatik test geçti. Testlerde kullanılan veriler örnektir. Kurulum bileşenleri, Electron penceresi, EXE üretimi ve kaldırma gerçek Windows ortamında denenmemiştir. Bu arşiv kullanıcı verisi, okul kayıtları, özel anahtar veya üretilmiş kurulum dosyası içermez.
+Linux ve Windows iş akışında Node ile 36 otomatik test geçti. Windows iş akışında hem paketlenmiş uygulama hem taşınabilir EXE, örnek hesap, sonraki eğitim yılı ve yoklama XLSX'iyle sınandı. Testlerde gerçek kişi verisi kullanılmadı. Okul cihazlarında gerçek kurulum, kaldırma, ekranların kapsamlı kontrolü ve uzman güvenlik incelemesi tamamlanmadı. Kaynak deposu kullanıcı verisi, okul kayıtları, özel anahtar veya üretilmiş EXE içermez.
 
 ## Tamamlanması gerekenler
 
-1. Windows iş akışını çalıştırıp derleme ve bağımlılık kurulumundaki sorunları giderin.
-2. Üretilen taşınabilir ve kurulum EXE'lerini gerçek Windows 10/11 x64 sistemlerde, pencere, veri yolları, Excel, yedek, kurulum ve kaldırma akışlarıyla sınayın.
-3. Kod imzalama ve kurum adı/logo/telif yetkilerini gözden geçirin. Şifrelerin düz metin saklanmasının riskini değerlendirin.
-4. Kullanım ve ekip kılavuzlarını Windows üzerinde doğrulanmış son sürüme göre Word ve PDF olarak tamamlayın.
-5. Yalnızca bu adımlardan sonra okullara yayımlayın. Windows 7/8 ve 32 bit desteklenmemektedir.
+1. Üretilen taşınabilir ve kurulum EXE'lerini okulun Windows 10/11 x64 cihazlarında, pencere, veri yolları, Excel, yedek, kurulum ve kaldırma akışlarıyla sınayın.
+2. Bağımsız güvenlik taraması, kod imzalama ve kurum adı/logo/telif yetkilerini gözden geçirin. Şifrelerin düz metin saklanmasının riskini değerlendirin.
+3. Kılavuzları, doğrulanmış son sürüme ve kurumun gerçek işleyişine göre güncelleyin.
+4. Yalnızca bu adımlardan sonra okullara yayımlayın. Windows 7/8 ve 32 bit desteklenmemektedir.
