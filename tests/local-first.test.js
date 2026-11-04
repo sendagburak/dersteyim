@@ -22,6 +22,15 @@ test('first user initializes one local school without a grant and receives a loc
   assert.match(contents,/okul\.yonetim/);assert.match(contents,/Ornek-Yalnizca-Test-2026/);
   const auth=await req('/api/auth/login',{usernameOrEmail:'okul.yonetim',password:'Ornek-Yalnizca-Test-2026'},null);assert.equal(auth.status,200);token=auth.body.token;assert.equal(auth.body.user.role,'admin');
 });
+test('the first local account can start and resolve an emergency without any extra users',async()=>{
+  assert.equal(db.prepare('SELECT count(*) AS n FROM users').get().n,1);
+  const started=await req('/api/emergency/trigger',{alertType:'DEPREM',message:'Yalnızca test amaçlı.'});
+  assert.equal(started.status,200,JSON.stringify(started));
+  assert.equal(started.body.activeAlert.alert_type,'DEPREM');
+  assert.equal((await req('/api/emergency/active')).body.activeAlert.alert_type,'DEPREM');
+  assert.equal((await req('/api/emergency/resolve',{})).status,200);
+  assert.equal((await req('/api/emergency/active')).body.activeAlert,null);
+});
 test('attendance creates daily class XLSX of absent students in month/day folders',async()=>{
   const c=await req('/api/classes',{grade_level:6,section:'A',academic_year:'2026-2027'});assert.equal(c.status,201);classId=db.prepare('SELECT id FROM classes').get().id;
   assert.equal((await req('/api/students',{class_id:classId,student_no:'101',full_name:'Deneme Öğrenci',parent_name:'Test Veli'})).status,201);
