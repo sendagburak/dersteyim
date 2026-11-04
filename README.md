@@ -17,6 +17,8 @@ Kullanıcıların şifreleri istenen işleyiş gereği **Belgeler/Dersteyim** al
 
 Bu uygulamanın kullanılması tek başına KVKK'ya uygunluk garantisi veya resmî uygunluk belgesi sağlamaz. Kullanıcı ve kurum gerekli idari ve teknik tedbirleri ayrıca değerlendirmelidir.
 
+Veri envanteri, kuruma uyarlanacak aydınlatma taslağı ve bilinen riskler için [KVKK ve hukuk çalışma belgelerine](docs/kvkk/HUKUKI_DEGERLENDIRME.md) bakın. Gerçek verilerle kullanımdan önce özellikle düz metin şifre riski, kurumsal yetki ve veri sorumlusu değerlendirilmelidir.
+
 ## Yoklama dosyaları
 
 Her kayıttan sonra Masaüstü/Yoklamalar altında ay ve gün klasörü oluşturulur. Örnek: `Yoklamalar/03-Kasım/04.11.2026/6-A_04.11.2026_09-15.xlsx`. Her Excel dosyası o sınıf ve gün için kaydedilmiş derslerde **gelmedi** durumundaki öğrencileri içerir; öğrenci adı maskelidir. Yeni kayıtlar daha önceki dosyaları silmez. Aynı dakika içinde dosya adı çakışırsa sıra numarası eklenir. Rapor oluşturulamazsa yoklama veritabanında kalır ve ekranda hata belirtilir.

@@ -1212,9 +1212,10 @@ export default function App({deployment}) {
                     type="text"
                     value={lessonNote}
                     onChange={(e) => setLessonNote(e.target.value)}
-                    placeholder="Ders kazanımları, özel durumlar..."
+                    placeholder="Dersin genel içeriği..."
                     className="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-800 dark:text-slate-100"
                   />
+                  <p className="text-xs mt-1">Bu alana öğrenci adı, sağlık bilgisi veya devamsızlık gerekçesi yazmayın.</p>
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-4 pt-2">
