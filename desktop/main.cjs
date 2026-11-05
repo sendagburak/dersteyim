@@ -1,5 +1,6 @@
 const {app,BrowserWindow,dialog,session}=require('electron');
 const path=require('node:path');const {startBackend}=require('./backend-process.cjs');const {schoolDataPath}=require('./data-path.cjs');
+const {installCloseConfirmation}=require('./close-confirmation.cjs');
 app.setName('VarYok');
 // Allows an isolated synthetic profile in automated Windows package tests.
 if(process.env.DERSTEYIM_TEST_PROFILE_DIR)app.setPath('userData',path.resolve(process.env.DERSTEYIM_TEST_PROFILE_DIR));
@@ -20,6 +21,7 @@ else {
    const allowed=details.url.startsWith(origin+'/')||details.url.startsWith('blob:')||details.url.startsWith('data:');callback({cancel:!allowed});
   });
   mainWindow=new BrowserWindow({width:1280,height:820,minWidth:800,minHeight:600,show:false,autoHideMenuBar:true,title:'VarYok',backgroundColor:'#f8fafc',icon:path.join(root,'assets','varyok.ico'),webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true,devTools:!app.isPackaged}});
+  installCloseConfirmation(mainWindow,dialog);
   mainWindow.webContents.setWindowOpenHandler(()=>({action:'deny'}));
   mainWindow.webContents.on('will-navigate',(event,url)=>{if(!url.startsWith(origin+'/'))event.preventDefault();});
   mainWindow.once('ready-to-show',()=>mainWindow.show());

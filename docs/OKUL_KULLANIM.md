@@ -7,7 +7,7 @@ Bu kılavuz Windows yerel masaüstü deneme sürümü içindir. Gerçek öğrenc
 1. VarYok'u okulun belirlediği bilgisayarda açın. İlk açılışta bir kullanıcı adı ve şifre oluşturun, ardından giriş yapın.
 2. **Okul / sınıf kurulumu → Okul / sınıf** bölümünde sınıfları ve şubelerini oluşturun. Her sınıf için eğitim yılını kontrol edin.
 3. **Öğrenci ekle** bölümünden öğrencileri tek tek ekleyin veya **e-Okul İçe Aktar** bölümündeki şablonla sınıf listelerini yükleyin.
-4. **Yoklama Al** bölümünde sınıfı ve tarihi seçin; yoklama alınacak ders saatlerini tikleyin. Gelmeyenlerin yanındaki **Gelmedi** düğmesine ve ardından **Seçili derslerin yoklamasını kaydet** düğmesine basın.
+4. **Yoklama Al** bölümünde sınıfı ve tarihi seçin; yoklama alınacak ders saatlerini tikleyin. Her öğrencinin her ders için durumunu ayrı işaretleyin ve **Seçili derslerin yoklamasını kaydet** düğmesine basın.
 5. Masaüstünde **Yoklamalar** klasörünü açıp ay, gün ve sınıfın dosyasını kontrol edin. Kayıt işleminden sonra ekranda hata olup olmadığını da okuyun.
 
 İlk hesap tek başına yeterlidir; bütün sınıfların yoklamasını alabilir. Ek kullanıcı, öğretmen hesabı, veli hesabı ve haftalık ders programı günlük yoklama için zorunlu değildir. Bu kılavuz ilk kurulum, giriş ve uygulama içindeki **Kullanım kılavuzu** bağlantısından internet olmadan açılabilir.
@@ -50,8 +50,8 @@ Her hesap için oluşturulan TXT aynı Windows kullanıcısının Belgeler/VarYo
 ## Yoklama alma ve rapor
 
 1. İlk hesapla giriş yapın. **Yoklama Al** ekranında sınıfı ve tarihi seçin. Sınıf adının yanındaki eğitim öğretim yılının doğru olduğuna bakın.
-2. **Yoklaması alınacak ders saatleri** alanında bir veya birden fazla saati tikleyin. Örneğin bir öğrenci ilk üç derse gelmediyse 1., 2. ve 3. dersleri seçin ve o öğrencinin yanındaki **Gelmedi** düğmesine basın. Düğme yalnızca seçili saatlere uygulanır.
-3. İhtiyaç varsa **Geç** veya **İzinli** durumunu seçin. Yeni bir saat ilk kez kaydedilirken durumu değiştirilmemiş öğrenciler **Geldi** olarak kaydedilir. Seçilmeyen saatler değişmez. Seçili saatlerdeki eski durumlar farklıysa ekranda bu belirtilir; öğrenci satırında bütün günün durumları görülebilir.
+2. **Yoklaması alınacak ders saatleri** alanında bir veya birden fazla saati tikleyin. Her öğrencinin altında seçilen her ders için ayrı durum düğmeleri açılır. Örneğin ilk üç derse gelmeyen, dördüncü derse gelen öğrenci için ilk üç dersin her birinde **Gelmedi**, dördüncü derste **Geldi** seçin. Bir dersin düğmesi yalnızca o dersi değiştirir.
+3. İhtiyaç varsa dersin kendi satırında **Geç** veya **İzinli** durumunu seçin. Yeni bir saat ilk kez kaydedilirken durumu değiştirilmemiş öğrenciler **Geldi** olarak kaydedilir. Seçilmeyen saatler değişmez; öğrencinin bütün gününün durumları satır altında görülebilir. **Seçili saatlerde tümünü geldi işaretle** düğmesi ise seçili bütün saatlerde bütün öğrencileri açıkça **Geldi** yapar.
 4. Varsa seçili derslere ait ortak genel ders notunu yazın ve **Seçili derslerin yoklamasını kaydet** düğmesine basın. Öğrenci adı, sağlık bilgisi veya devamsızlık gerekçesi yazmayın. Kaydedilmemiş değişiklikler varken Excel indirmeden veya başka sınıfa geçmeden önce kaydedin.
 5. Her başarılı kayıttan sonra seçili saatler temizlenir. Öğrenci daha sonraki derslere geldiyse bu saatleri seçip **Geldi** durumuyla kaydedin. Örneğin 1-3. saatler **Gelmedi**, 4. saat **Geldi** olarak ayrı ayrı korunur. Yoklaması hiç kaydedilmeyen saatler **Kayıt yok** görünür; otomatik olarak geldi sayılmaz.
 6. Kaydetmeden sonra ekrandaki sonucu okuyun. Excel güncellenemezse veritabanı kaydı tamamlanmış olabilir; açık Excel dosyasını kapatın ve masaüstü klasörünün izinlerini kontrol edin.
@@ -103,6 +103,7 @@ Okul, öğrencileri ve velileri kendi işlemine uygun aydınlatma metniyle bilgi
 - **Yanlış kullanıcı adı veya şifre:** Doğru Windows hesabında Belgeler/VarYok içindeki TXT dosyasını kontrol edin. Çok sayıda hatalı denemeden sonra 15 dakika beklemeniz gerekebilir.
 - **Sınıf görünmüyor:** İdareci olarak sınıf ve öğrenci kayıtlarını; öğretmen olarak ders programını, dersi ve okulun ders saatlerini kontrol edin.
 - **Excel oluşmadı:** Masaüstü konumunun erişilebilir ve yazılabilir olduğundan emin olun; dosya açıksa kapatıp yoklamayı kontrol ederek tekrar deneyin. Hata mesajında veritabanı kaydının durumu ayrıca belirtilir.
+- **Pencereyi kapatırken uyarı çıkıyor:** Kaydedilmemiş yoklamayı korumak için **Düzenlemeye dön** seçeneğiyle geri dönüp kaydedin. Değişiklikleri gözden çıkarıyorsanız **Kaydetmeden çık** seçeneğiyle pencereyi kapatın.
 - **Başka bilgisayarda hesap veya kayıt yok:** Bu sürümde her kurulum bağımsızdır. Ağ üzerinden otomatik paylaşım veya eşitleme yapılmaz.
 - **Acil durum sesi duyulmuyor:** Önce ekrandaki **Sesi etkinleştir** düğmesini, ardından Windows'un doğru hoparlöre ses gönderdiğini ve uygulama/cihaz sesinin kısık olmadığını kontrol edin. Alarm ekranındaki **Seçili sesi dene** düğmesi kayıt oluşturmadan deneme yapar; etkin alarm sırasında deneme düğmesi kullanılamaz.
 - **E-posta/push gitmiyor:** Bu sürümde bilerek kapalıdır. İnternet açmak veya süre beklemek bunları etkinleştirmez.
