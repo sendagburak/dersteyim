@@ -42,3 +42,25 @@ jobs:
           name: VarYok-Windows-x64
           path: dist_installer/*.exe
           if-no-files-found: error
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: VarYok-Windows-x64
+          path: dist_installer
+      - name: Test edilen EXE dosyalarını deneme sürümü olarak yayımla
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(node -p "require('./desktop/package.json').version")
+          if gh release view "v$version" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "v$version zaten mevcut; dosyalar değiştirilmedi."
+            exit 0
+          fi
+          gh release create "v$version" dist_installer/*.exe --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease --title "VarYok $version (Deneme)" --notes "Bu deneme sürümünde ders saatlerinin durumları ayrı düzenlenir ve kaydedilmemiş yoklama varken kapanış onayı gösterilir. Önceden yanlış kaydedilmiş yoklamaları kontrol edin. Gerçek okul ortamında kullanmadan önce kurulum, güvenlik ve hukuki değerlendirmeleri tamamlayın."
