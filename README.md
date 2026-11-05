@@ -27,7 +27,7 @@ Veri envanteri, kuruma uyarlanacak aydınlatma taslağı ve bilinen riskler içi
 
 ## Yoklama dosyaları
 
-Her kayıttan sonra Masaüstü/Yoklamalar altında ay ve gün klasörü oluşturulur. Örnek: `Yoklamalar/03-Kasım/04.11.2026/6-A_04.11.2026_09-15.xlsx`. Her Excel dosyası o sınıf ve gün için kaydedilmiş derslerde **gelmedi** durumundaki öğrencileri içerir; öğrenci adı maskelidir. Yeni kayıtlar daha önceki dosyaları silmez. Aynı dakika içinde dosya adı çakışırsa sıra numarası eklenir. Rapor oluşturulamazsa yoklama veritabanında kalır ve ekranda hata belirtilir.
+Her kayıttan sonra Masaüstü/Yoklamalar altında ay ve gün klasörü oluşturulur. Örnek: `Yoklamalar/03-Kasım/04.11.2026/6-A_04.11.2026_09-15.xlsx`. Sınıfın günlük Excel dosyasında her öğrenci bir satırda, 1-8. derslerin durumları ayrı sütunlardadır; kayıt alınmayan saatler **Kayıt yok** olarak gösterilir. Açıklama sütunu durumları özetler, genel ders notları ayrıca bulunur ve öğrenci adı maskelidir. Yeni kayıtlar aynı günlük dosyayı günceller; dosya adındaki saat ilk oluşturulma saatidir. Önceki sürümden kalan eski dosyalar silinmez. Rapor oluşturulamazsa yoklama veritabanında kalır ve ekranda hata belirtilir.
 
 ## Geliştiriciler için
 

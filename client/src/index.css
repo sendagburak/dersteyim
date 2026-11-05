@@ -28,6 +28,7 @@ body {
 .panel { background: #fff; color: #1e293b; padding: 1.5rem; border: 1px solid #cbd5e1; border-radius: 1rem; }
 .dark .panel { background: #0f172a; color: #e2e8f0; border-color: #334155; }
 .panel input, .panel select, .panel textarea { width: 100%; min-height: 2.6rem; border: 1px solid #94a3b8; border-radius: .5rem; padding: .5rem .7rem; background: transparent; color: inherit; }
+.panel input.attendance-period-checkbox { width: 1rem; height: 1rem; min-height: 0; padding: 0; accent-color: #1d4ed8; flex-shrink: 0; }
 .panel select option { color: #0f172a; background: white; }
 .action { background: #1d4ed8; color: white; border-radius: .5rem; padding: .65rem 1rem; font-weight: 600; }
 button { cursor: pointer; }

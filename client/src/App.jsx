@@ -12,6 +12,7 @@ import FamilyPortal from './FamilyPortal';
 import Notifications from './Notifications';
 import SchoolRecovery from './SchoolRecovery';
 import Guide from './Guide';
+import DailyAttendance from './DailyAttendance';
 import {createEmergencySound} from './emergencySound';
 
 export default function App({deployment}) {
@@ -41,6 +42,7 @@ export default function App({deployment}) {
 
   // Main navigation tab
   const [activeTab, setActiveTab] = useState('attendance'); 
+  const [hasDailyDraft, setHasDailyDraft] = useState(false);
   // attendance | queue | matrix | eokul | students | users | homework | announcements | devices | outbox | logs
 
   // Context & Operational States
@@ -313,6 +315,13 @@ export default function App({deployment}) {
   useEffect(() => () => emergencyAudio.current.dispose(), []);
 
   useEffect(() => {
+    if (!hasDailyDraft) return;
+    const warn = event => { event.preventDefault(); event.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [hasDailyDraft]);
+
+  useEffect(() => {
     if (currentUser && !currentUser.must_change_password && !['parent','student'].includes(currentUser.role) && selectedClassId) {
       void Promise.resolve().then(() => fetchClassStudents(selectedClassId, selectedPeriod));
     }
@@ -361,6 +370,7 @@ export default function App({deployment}) {
 
   // Handle Logout
   const handleLogout = async () => {
+    if (hasDailyDraft && !window.confirm('Kaydedilmemiş yoklama değişiklikleri silinecek. Çıkış yapmak istiyor musunuz?')) return;
     try { const registration=await navigator.serviceWorker?.getRegistration(); const subscription=await registration?.pushManager.getSubscription(); if(subscription){await apiFetch('/api/push/unsubscribe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:subscription.endpoint})});await subscription.unsubscribe();} } catch {}
     try {
       await apiFetch('/api/auth/logout', {
@@ -686,6 +696,12 @@ export default function App({deployment}) {
   const hasActiveScheduledClass = allowedClasses && allowedClasses.length > 0;
   const isSuperAdmin = currentUser?.role === 'superadmin';
   const isAnyAdmin = currentUser?.role === 'superadmin' || currentUser?.role === 'admin';
+  const navigateTab = tab => {
+    if (tab === activeTab) return;
+    if (hasDailyDraft && !window.confirm('Kaydedilmemiş yoklama değişiklikleri silinecek. Sayfadan ayrılmak istiyor musunuz?')) return;
+    setHasDailyDraft(false);
+    setActiveTab(tab);
+  };
 
   if (authLoading) return <div role="status" className="min-h-screen grid place-items-center">VarYok yükleniyor…</div>;
   if (currentUser?.must_change_password) return <Account request={apiFetch} user={currentUser} forced onChanged={refreshSession} onLogout={handleLogout}/>;
@@ -906,7 +922,7 @@ export default function App({deployment}) {
         <div className="max-w-7xl mx-auto px-4 flex space-x-1 overflow-x-auto py-2 scrollbar-none text-sm font-medium">
           
           <button
-            onClick={() => setActiveTab('attendance')}
+            onClick={() => navigateTab('attendance')}
             className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition ${
               activeTab === 'attendance'
                 ? 'bg-blue-600 text-white shadow font-semibold'
@@ -918,7 +934,7 @@ export default function App({deployment}) {
           </button>
 
           {!schoolMode && (          <button
-            onClick={() => setActiveTab('queue')}
+            onClick={() => navigateTab('queue')}
             className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition relative ${
               activeTab === 'queue'
                 ? 'bg-blue-600 text-white shadow font-semibold'
@@ -935,7 +951,7 @@ export default function App({deployment}) {
           </button>)}
 
           <button
-            onClick={() => setActiveTab('matrix')}
+            onClick={() => navigateTab('matrix')}
             className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition ${
               activeTab === 'matrix'
                 ? 'bg-blue-600 text-white shadow font-semibold'
@@ -947,7 +963,7 @@ export default function App({deployment}) {
           </button>
 
           <button
-            onClick={() => setActiveTab('students')}
+            onClick={() => navigateTab('students')}
             className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition ${
               activeTab === 'students'
                 ? 'bg-blue-600 text-white shadow font-semibold'
@@ -960,7 +976,7 @@ export default function App({deployment}) {
 
           {isAnyAdmin && !schoolMode && (
             <button
-              onClick={() => setActiveTab('users')}
+              onClick={() => navigateTab('users')}
               className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition ${
                 activeTab === 'users'
                   ? 'bg-blue-600 text-white shadow font-semibold'
@@ -974,7 +990,7 @@ export default function App({deployment}) {
 
           {isAnyAdmin && (
           <button
-            onClick={() => setActiveTab('eokul')}
+            onClick={() => navigateTab('eokul')}
             className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition ${
               activeTab === 'eokul'
                 ? 'bg-blue-600 text-white shadow font-semibold'
@@ -987,7 +1003,7 @@ export default function App({deployment}) {
           )}
 
           <button
-            onClick={() => setActiveTab('homework')}
+            onClick={() => navigateTab('homework')}
             className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition ${
               activeTab === 'homework'
                 ? 'bg-blue-600 text-white shadow font-semibold'
@@ -999,7 +1015,7 @@ export default function App({deployment}) {
           </button>
 
           <button
-            onClick={() => setActiveTab('announcements')}
+            onClick={() => navigateTab('announcements')}
             className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition ${
               activeTab === 'announcements'
                 ? 'bg-blue-600 text-white shadow font-semibold'
@@ -1012,7 +1028,7 @@ export default function App({deployment}) {
 
           {isAnyAdmin && (
             <button
-              onClick={() => setActiveTab('devices')}
+              onClick={() => navigateTab('devices')}
               className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition ${
                 activeTab === 'devices'
                   ? 'bg-blue-600 text-white shadow font-semibold'
@@ -1026,7 +1042,7 @@ export default function App({deployment}) {
 
           {isAnyAdmin && !schoolMode && (
           <button
-            onClick={() => setActiveTab('outbox')}
+            onClick={() => navigateTab('outbox')}
             className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition ${
               activeTab === 'outbox'
                 ? 'bg-blue-600 text-white shadow font-semibold'
@@ -1040,7 +1056,7 @@ export default function App({deployment}) {
 
           {isAnyAdmin && (
             <button
-              onClick={() => setActiveTab('logs')}
+              onClick={() => navigateTab('logs')}
               className={`px-3.5 py-2 rounded-xl flex items-center space-x-2 whitespace-nowrap transition ${
                 activeTab === 'logs'
                   ? 'bg-blue-600 text-white shadow font-semibold'
@@ -1054,7 +1070,7 @@ export default function App({deployment}) {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto w-full px-4 pt-3 flex flex-wrap gap-4"><button className="underline text-sm" onClick={()=>setActiveTab('notifications')}>Bildirimler</button><button onClick={() => setActiveTab('account')} className="underline text-sm">Hesabım</button>{isAnyAdmin && <button onClick={() => setActiveTab('management')} className="underline text-sm">Okul / sınıf kurulumu</button>}{isAnyAdmin && schoolMode && <button onClick={() => setActiveTab('users')} className="underline text-sm">Ek kullanıcılar (isteğe bağlı)</button>}<button onClick={() => setActiveTab('guide')} className="underline text-sm">Kullanım kılavuzu</button></div>
+      <div className="max-w-7xl mx-auto w-full px-4 pt-3 flex flex-wrap gap-4"><button className="underline text-sm" onClick={()=>navigateTab('notifications')}>Bildirimler</button><button onClick={() => navigateTab('account')} className="underline text-sm">Hesabım</button>{isAnyAdmin && <button onClick={() => navigateTab('management')} className="underline text-sm">Okul / sınıf kurulumu</button>}{isAnyAdmin && schoolMode && <button onClick={() => navigateTab('users')} className="underline text-sm">Ek kullanıcılar (isteğe bağlı)</button>}<button onClick={() => navigateTab('guide')} className="underline text-sm">Kullanım kılavuzu</button></div>
       {/* 5. TAB CONTENTS */}
       <main className="max-w-7xl mx-auto px-4 py-6 w-full flex-1">
 
@@ -1064,7 +1080,8 @@ export default function App({deployment}) {
         {activeTab === 'guide' && <Guide/>}
         {!allClasses.length && activeTab !== 'guide' && <p className="panel mb-4">{schoolMode && isAnyAdmin ? 'Henüz sınıf yok. Okul / sınıf kurulumu bölümünden sınıfları ve öğrencileri ekleyin. Ek kullanıcı veya ders programı zorunlu değildir.' : 'Henüz erişebildiğiniz sınıf yok. Okul / sınıf kurulumu bölümünden sınıf ve ders programı tanımlayın.'}</p>}
         {/* TAB 1: ATTENDANCE */}
-        {activeTab === 'attendance' && (
+        {activeTab === 'attendance' && schoolMode && isAnyAdmin && <DailyAttendance request={apiFetch} classes={allClasses} periods={periods} classId={selectedClassId} onClassChange={setSelectedClassId} date={attendanceDate} onDateChange={setAttendanceDate} today={turkeyTime.date} downloadFile={downloadFile} onDirtyChange={setHasDailyDraft}/>}
+        {activeTab === 'attendance' && !(schoolMode && isAnyAdmin) && (
           <div className="space-y-6">
             
             {/* Teacher Schedule Lock Alert */}

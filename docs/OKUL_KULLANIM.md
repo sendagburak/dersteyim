@@ -7,7 +7,7 @@ Bu kılavuz Windows yerel masaüstü deneme sürümü içindir. Gerçek öğrenc
 1. VarYok'u okulun belirlediği bilgisayarda açın. İlk açılışta bir kullanıcı adı ve şifre oluşturun, ardından giriş yapın.
 2. **Okul / sınıf kurulumu → Okul / sınıf** bölümünde sınıfları ve şubelerini oluşturun. Her sınıf için eğitim yılını kontrol edin.
 3. **Öğrenci ekle** bölümünden öğrencileri tek tek ekleyin veya **e-Okul İçe Aktar** bölümündeki şablonla sınıf listelerini yükleyin.
-4. **Yoklama Al** bölümünde sınıfı, tarihi ve ders saatini seçin; gelmeyenleri işaretleyin ve **Yoklamayı Kaydet** düğmesine basın.
+4. **Yoklama Al** bölümünde sınıfı ve tarihi seçin; yoklama alınacak ders saatlerini tikleyin. Gelmeyenlerin yanındaki **Gelmedi** düğmesine ve ardından **Seçili derslerin yoklamasını kaydet** düğmesine basın.
 5. Masaüstünde **Yoklamalar** klasörünü açıp ay, gün ve sınıfın dosyasını kontrol edin. Kayıt işleminden sonra ekranda hata olup olmadığını da okuyun.
 
 İlk hesap tek başına yeterlidir; bütün sınıfların yoklamasını alabilir. Ek kullanıcı, öğretmen hesabı, veli hesabı ve haftalık ders programı günlük yoklama için zorunlu değildir. Bu kılavuz ilk kurulum, giriş ve uygulama içindeki **Kullanım kılavuzu** bağlantısından internet olmadan açılabilir.
@@ -49,14 +49,17 @@ Her hesap için oluşturulan TXT aynı Windows kullanıcısının Belgeler/VarYo
 
 ## Yoklama alma ve rapor
 
-1. İlk hesapla giriş yapın. **Yoklama Al** ekranında sınıfı, tarihi ve ders saatini seçin. Seçtiğiniz sınıfın yanındaki eğitim öğretim yılının doğru olduğuna bakın. Ayrı bir öğretmen hesabı kullanıyorsanız o anda programda bulunan sınıf gösterilir.
-2. Öğrenciler başlangıçta **Geldi** olarak işaretlenir. Gelmeyenleri **Gelmedi**, gerekiyorsa diğer öğrencileri **Geç** veya **İzinli** olarak işaretleyin; listeyi kontrol ettikten sonra **Yoklamayı Kaydet** düğmesine basın. Kaydetmeden başka sınıfa geçmeyin.
-3. Ders ve tarih ayrı tutulur. Daha sonra aynı derste düzeltme yapmak gerekiyorsa ilgili kayıt güncellenir. Sınıf seçerken yanındaki eğitim öğretim yılını kontrol edin; aynı şubenin önceki yıl kaydı ayrıca seçilebilir. Başka bir oturum aynı kaydı değiştirmişse listeyi yenileyip tekrar deneyin.
-4. Kaydetmeden sonra ekrandaki sonucu okuyun. Excel başarısız olsa bile veritabanı kaydı tamamlanmış olabilir; uyarıya göre masaüstü klasörü ve yazma izinlerini kontrol edin.
-5. Masaüstündeki **Yoklamalar** klasöründen ilgili ayı ve tarih klasörünü açın. Dosya adı sınıf, tarih ve oluşturma saatini içerir. Bir sınıfın aynı gündeki tüm kaydedilmiş derslerinde **Gelmedi** işaretlenen öğrenciler raporda dersleriyle birlikte yer alır. İsimler maskelidir. Her kayıt yeni bir dosya oluşturabilir; en güncel dosyayı saatine göre seçin.
-6. **Ders & Yoklama Matrisi** ile geçmiş tarih seçilebilir; **Excel olarak indir** seçilen günün gelmeyenlerini dışa aktarır.
+1. İlk hesapla giriş yapın. **Yoklama Al** ekranında sınıfı ve tarihi seçin. Sınıf adının yanındaki eğitim öğretim yılının doğru olduğuna bakın.
+2. **Yoklaması alınacak ders saatleri** alanında bir veya birden fazla saati tikleyin. Örneğin bir öğrenci ilk üç derse gelmediyse 1., 2. ve 3. dersleri seçin ve o öğrencinin yanındaki **Gelmedi** düğmesine basın. Düğme yalnızca seçili saatlere uygulanır.
+3. İhtiyaç varsa **Geç** veya **İzinli** durumunu seçin. Yeni bir saat ilk kez kaydedilirken durumu değiştirilmemiş öğrenciler **Geldi** olarak kaydedilir. Seçilmeyen saatler değişmez. Seçili saatlerdeki eski durumlar farklıysa ekranda bu belirtilir; öğrenci satırında bütün günün durumları görülebilir.
+4. Varsa seçili derslere ait ortak genel ders notunu yazın ve **Seçili derslerin yoklamasını kaydet** düğmesine basın. Öğrenci adı, sağlık bilgisi veya devamsızlık gerekçesi yazmayın. Kaydedilmemiş değişiklikler varken Excel indirmeden veya başka sınıfa geçmeden önce kaydedin.
+5. Her başarılı kayıttan sonra seçili saatler temizlenir. Öğrenci daha sonraki derslere geldiyse bu saatleri seçip **Geldi** durumuyla kaydedin. Örneğin 1-3. saatler **Gelmedi**, 4. saat **Geldi** olarak ayrı ayrı korunur. Yoklaması hiç kaydedilmeyen saatler **Kayıt yok** görünür; otomatik olarak geldi sayılmaz.
+6. Kaydetmeden sonra ekrandaki sonucu okuyun. Excel güncellenemezse veritabanı kaydı tamamlanmış olabilir; açık Excel dosyasını kapatın ve masaüstü klasörünün izinlerini kontrol edin.
+7. Masaüstündeki **Yoklamalar** klasöründen ilgili ayı ve tarih klasörünü açın. Her sınıfın yeni günlük raporu sonraki kayıtlarda güncellenir. Her öğrencinin 1-8. dersleri ayrı sütunlardadır; **Açıklama** sütunu durumları özetler, **Ders Notları** sütununda genel ders notları bulunur. İsimler maskelidir.
+8. **Günlük Excel’i indir** düğmesi seçilen sınıf ve tarihin o anki raporunu indirir. Dosya adındaki saat indirme saatidir. Masaüstündeki otomatik raporun adındaki saat ise ilk oluşturulma saatidir. Otomatik rapor yeniden oluşturulabileceğinden Excel'de elle düzenleme yapacaksanız önce ayrı bir kopyasını alın.
+9. **Ders & Yoklama Matrisi** bölümünden de sınıfın geçmiş tarihli kayıtlarını görebilir ve aynı günlük Excel raporunu indirebilirsiniz. Ayrı öğretmen hesabı kullanılıyorsa önceki tek derslik ekran ve güncel ders programı kısıtlaması geçerlidir.
 
-Eylül-Temmuz klasörleri oluşturulur. Ağustos ayı için kayıt yapılırsa ayrıca Ağustos klasörü oluşturulur. Aynı dakikadaki raporlar üzerine yazılmaz; ada sıra numarası eklenir.
+Eylül-Temmuz klasörleri oluşturulur. Ağustos ayı için kayıt yapılırsa ayrıca Ağustos klasörü oluşturulur. Önceki sürümden kalan raporlar silinmez; yeni günlük dosya adıyla çakışma varsa sıra numarası eklenir. Yeni sürümdeki aynı sınıf ve gün raporu sonraki kayıtlarda güncellenir.
 
 Örnek dosya yolu: `Masaüstü/Yoklamalar/03-Kasım/04.11.2026/6-A_04.11.2026_09-15.xlsx`. Dosyadaki adlar maskeli olsa da öğrenci numarasıyla kişi belirlenebileceğinden dosya kişisel veri içerir. Raporları yalnızca görevi gereği erişmesi gereken kişilerle paylaşın.
 

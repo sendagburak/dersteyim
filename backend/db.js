@@ -338,6 +338,18 @@ function migrateV5(){
   })();
 }
 
+function migrateV6(){
+  if(db.pragma('user_version')[0].user_version>=6)return;
+  db.transaction(()=>{
+    db.exec(`CREATE TABLE IF NOT EXISTS daily_report_files (
+      class_id INTEGER NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+      date TEXT NOT NULL,
+      file_name TEXT NOT NULL,
+      PRIMARY KEY(class_id,date)
+    ); PRAGMA user_version=6;`);
+  })();
+}
+
 // Integrity and health check
 function checkIntegrity() {
   try {
@@ -374,6 +386,7 @@ migrate();
 migrateV3();
 migrateV4();
 migrateV5();
+migrateV6();
 
 module.exports = {
   db,

@@ -6,7 +6,7 @@ process.env.DATA_DIR=path.join(dir,'data');process.env.APP_MODE='school';
 process.env.EMAIL_ENABLED='true';process.env.PUSH_ENABLED='true';process.env.DERSTEYIM_DOCUMENTS_DIR=path.join(dir,'Documents');process.env.DERSTEYIM_DESKTOP_DIR=path.join(dir,'Desktop');
 const {app}=require('../backend/server');const {db,closeDatabase}=require('../backend/db');
 const ExcelJS=require('exceljs');
-let server,base,token,classId,studentId,version;
+let server,base,token,classId,studentId,version,reportPath;
 const req=async(url,body,auth=token)=>{const r=await fetch(base+url,{method:body===undefined?'GET':'POST',headers:{...(body===undefined?{}:{'Content-Type':'application/json'}),...(auth?{Authorization:'Bearer '+auth}:{})},body:body===undefined?undefined:JSON.stringify(body)});return {status:r.status,body:await r.json()};};
 before(async()=>{server=app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));base='http://127.0.0.1:'+server.address().port;});
 after(async()=>{await new Promise(r=>server.close(r));closeDatabase();fs.rmSync(dir,{recursive:true,force:true});});
@@ -36,14 +36,16 @@ test('attendance creates daily class XLSX of absent students in month/day folder
   assert.equal((await req('/api/students',{class_id:classId,student_no:'101',full_name:'Deneme Öğrenci',parent_name:'Test Veli'})).status,201);
   studentId=db.prepare('SELECT id FROM students').get().id;
   const r=await req('/api/attendance/save',{classId,period:1,records:{[studentId]:'GELMEDI'}});assert.equal(r.status,200,JSON.stringify(r));assert.equal(r.body.export.success,true,JSON.stringify(r));version=r.body.saved_timestamp;
+  reportPath=r.body.export.filename;
   const exportRoot=path.join(process.env.DERSTEYIM_DESKTOP_DIR,'Yoklamalar');const entries=fs.readdirSync(exportRoot,{recursive:true});
   assert.ok(entries.some(x=>x.startsWith('01-Eylül')));assert.ok(entries.some(x=>x.startsWith('11-Temmuz')));
   const reports=entries.filter(x=>x.endsWith('.xlsx'));assert.equal(reports.length,1);assert.match(reports[0],/6-A_\d{2}\.\d{2}\.\d{4}_\d{2}-\d{2}\.xlsx$/);
   const wb=new ExcelJS.Workbook();await wb.xlsx.readFile(path.join(exportRoot,reports[0]));assert.match(JSON.stringify(wb.worksheets[0].getSheetValues()),/Den/);assert.match(JSON.stringify(wb.worksheets[0].getSheetValues()),/101/);
 });
-test('updating a saved lesson writes a fresh report and does not overwrite the earlier file',async()=>{
+test('updating a saved lesson refreshes its single daily report',async()=>{
   const r=await req('/api/attendance/save',{classId,period:1,records:{[studentId]:'GELDI'},expectedSavedTimestamp:version});assert.equal(r.status,200);assert.equal(r.body.export.success,true);
-  const root=path.join(process.env.DERSTEYIM_DESKTOP_DIR,'Yoklamalar');assert.equal(fs.readdirSync(root,{recursive:true}).filter(x=>x.endsWith('.xlsx')).length,2);
+  const root=path.join(process.env.DERSTEYIM_DESKTOP_DIR,'Yoklamalar');assert.equal(fs.readdirSync(root,{recursive:true}).filter(x=>x.endsWith('.xlsx')).length,1);assert.equal(r.body.export.filename,reportPath);
+  const wb=new ExcelJS.Workbook();await wb.xlsx.readFile(reportPath);assert.equal(wb.worksheets[0].getRow(2).getCell(3).value,'Geldi');
 });
 test('password change updates the local credentials file',async()=>{
   const r=await req('/api/auth/password',{currentPassword:'Ornek-Yalnizca-Test-2026',newPassword:'Degistirilmis-Test-2026'});assert.equal(r.status,200);
@@ -57,10 +59,10 @@ test('additional local user credentials are saved and password reset replaces th
  assert.ok(txt().some(x=>x.includes('test.ogretmen')&&x.includes(initial)));
  const reset=await req(`/api/users/${create.body.userId}/reset-password`,{password:changed});assert.equal(reset.status,200);assert.ok(txt().some(x=>x.includes('test.ogretmen')&&x.includes(changed)));assert.ok(!txt().some(x=>x.includes(initial)));
 });
-test('manual class export contains absences only and uses the class, date, and time in its filename',async()=>{
+test('manual class export contains each period and uses the class, date, and time in its filename',async()=>{
  const saved=await req('/api/attendance/save',{classId,period:2,records:{[studentId]:'GELMEDI'}});assert.equal(saved.status,200);
  const res=await fetch(base+`/api/attendance/export?classId=${classId}`,{headers:{Authorization:'Bearer '+token}});assert.equal(res.status,200);assert.match(res.headers.get('content-disposition'),/6-A_\d{2}\.\d{2}\.\d{4}_\d{2}-\d{2}/);
- const wb=new ExcelJS.Workbook();await wb.xlsx.load(Buffer.from(await res.arrayBuffer()));const contents=JSON.stringify(wb.worksheets[0].getSheetValues());assert.match(contents,/GELMEDI/);assert.doesNotMatch(contents,/GELDI/);
+ const wb=new ExcelJS.Workbook();await wb.xlsx.load(Buffer.from(await res.arrayBuffer()));const row=wb.worksheets[0].getRow(2);assert.equal(row.getCell(3).value,'Geldi');assert.equal(row.getCell(4).value,'Gelmedi');assert.equal(row.getCell(5).value,'Kayıt yok');
 });
 test('backup copies a consistent database and encryption key under Documents',async()=>{
  const r=await req('/api/system/backup',{});assert.equal(r.status,200,JSON.stringify(r));assert.equal(r.body.success,true);assert.ok(r.body.path.startsWith(process.env.DERSTEYIM_DOCUMENTS_DIR));

@@ -200,9 +200,23 @@ router.get('/attendance/class-students/:classId',(req,res)=>{
   const records={};if(session){const allowed=new Set(students.map(s=>s.id));for(const r of db.prepare('SELECT student_id,status FROM attendance_records WHERE session_id=?').all(session.id))if(allowed.has(r.student_id))records[r.student_id]=r.status;}
   res.json({success:true,students,existingSession:session?{id:session.id,note:['parent','student'].includes(req.user.role)?'':session.note,saved_at_turkey_time:session.saved_at_turkey_time,saved_timestamp:session.saved_timestamp}:null,existingRecords:records});
 });
-router.post('/attendance/save',async(req,res)=>{
-  staff(req);const b=req.body,c=getClass(req,b.classId,true),period=id(b.period,'Ders saati'),date=b.date?isoDate(b.date):today();if(period>8)fail(400,'Ders saati 1–8 olmalıdır.');if(date>today())fail(400,'Gelecek tarih için yoklama kaydedilemez.');
-  if(req.user.role==='teacher') {
+router.get('/attendance/daily/:classId',(req,res)=>{
+  admin(req);const c=getClass(req,req.params.classId),date=req.query.date?isoDate(req.query.date):today(),current=studentRows(req,c.id);
+  const former=db.prepare(`SELECT DISTINCT s.id,s.class_id,s.student_no,s.tc_masked,s.masked_name,s.masked_parent_name,s.masked_parent_email,s.masked_parent_phone,s.gender
+    FROM students s JOIN attendance_records r ON r.student_id=s.id JOIN attendance_sessions a ON a.id=r.session_id WHERE a.class_id=? AND a.date=?`).all(c.id,date);
+  const students=[...new Map([...current,...former].map(s=>[s.id,s])).values()].sort((a,b)=>String(a.student_no).localeCompare(String(b.student_no),'tr',{numeric:true}));
+  const sessions=db.prepare('SELECT id,period,note,saved_timestamp,saved_at_turkey_time FROM attendance_sessions WHERE class_id=? AND date=?').all(c.id,date);
+  const records=db.prepare('SELECT a.period,r.student_id,r.status FROM attendance_records r JOIN attendance_sessions a ON a.id=r.session_id WHERE a.class_id=? AND a.date=?').all(c.id,date);
+  const periods=Array.from({length:8},(_,i)=>{
+    const period=i+1,existingRecords={},eligible=new Set(current.map(s=>s.id));
+    for(const row of records)if(row.period===period){existingRecords[row.student_id]=row.status;eligible.add(row.student_id);}
+    return {period,studentIds:[...eligible],existingRecords,existingSession:sessions.find(s=>s.period===period)||null};
+  });
+  res.json({success:true,date,students,periods});
+});
+function prepareAttendancePeriod(req,c,date,b){
+  const period=id(b.period,'Ders saati');if(period>8)fail(400,'Ders saati 1–8 olmalıdır.');
+  if(req.user.role==='teacher'){
     const p=periodsFor(c.school_id).find(p=>p.period===period);
     if(date!==today()||time()<p.start_time||time()>=p.end_time||!db.prepare('SELECT id FROM schedules WHERE teacher_id=? AND class_id=? AND day_of_week=? AND period=?').get(req.user.id,c.id,turkeyDay(),period))fail(403,'Yalnızca programınızdaki güncel dersin yoklamasını kaydedebilirsiniz.');
   }
@@ -210,33 +224,50 @@ router.post('/attendance/save',async(req,res)=>{
   const pupils=db.prepare('SELECT * FROM students WHERE class_id=? OR id IN (SELECT r.student_id FROM attendance_records r JOIN attendance_sessions a ON a.id=r.session_id WHERE a.class_id=? AND a.period=? AND a.date=?)').all(c.id,c.id,period,date),ids=new Set(pupils.map(s=>String(s.id)));
   if(!pupils.length)fail(400,'Bu sınıfta kayıtlı öğrenci yok.');
   if(Object.keys(b.records).length!==pupils.length||Object.entries(b.records).some(([sid,s])=>!ids.has(sid)||!['GELDI','GELMEDI','GEC','IZINLI'].includes(s)))fail(400,'Sınıftaki her öğrenci için geçerli bir durum gönderin.');
-  const stamp=Date.now(),savedAt=nowText(),note=text(b.note,'Ders notu',2000,true);
-  const result=db.transaction(()=>{
-    let sess=db.prepare('SELECT * FROM attendance_sessions WHERE class_id=? AND period=? AND date=?').get(c.id,period,date);
-    if(sess && db.prepare('SELECT 1 FROM notification_queue WHERE session_id=? AND processing_since IS NOT NULL').get(sess.id))fail(409,'Bu yoklamanın bildirimi gönderiliyor. İşlem bitince tekrar deneyin.');
-    if(sess && b.expectedSavedTimestamp!==sess.saved_timestamp)fail(409,'Bu yoklama başka bir oturumda değiştirildi. Listeyi yenileyip tekrar kaydedin.');
-    if(!sess && b.expectedSavedTimestamp!=null)fail(409,'Yoklama kaydı değişti. Listeyi yenileyin.');
-    const sessionId=sess?sess.id:Number(db.prepare('INSERT INTO attendance_sessions(class_id,period,date,recorded_by_teacher_id,saved_at_turkey_time,saved_timestamp,note) VALUES(?,?,?,?,?,?,?)').run(c.id,period,date,req.user.id,savedAt,stamp,note).lastInsertRowid);
-    const version=sess?Math.max(stamp,sess.saved_timestamp+1):stamp;
-    if(sess)db.prepare('UPDATE attendance_sessions SET recorded_by_teacher_id=?,saved_at_turkey_time=?,saved_timestamp=?,note=? WHERE id=?').run(req.user.id,savedAt,version,note,sessionId);
-    let absentCount=0;
-    for(const s of pupils){
-      const status=b.records[s.id];db.prepare('INSERT INTO attendance_records(session_id,student_id,status,updated_at) VALUES(?,?,?,?) ON CONFLICT(session_id,student_id) DO UPDATE SET status=excluded.status,updated_at=excluded.updated_at').run(sessionId,s.id,status,savedAt);
-      if(status==='GELMEDI') {
-        absentCount++;
-        // Idempotent: a pending OR already-sent notice is never inserted again.
-        const existing=db.prepare("SELECT id FROM notification_queue WHERE session_id=? AND student_id=? AND status IN ('PENDING','SENT')").get(sessionId,s.id);
-        if(!existing && date===today() && (config.EMAIL_ENABLED||config.PUSH_ENABLED))db.prepare("INSERT INTO notification_queue(session_id,student_id,parent_email,parent_phone,student_name_masked,class_name,period_name,teacher_name,absent_time_turkey,scheduled_send_time,status,channel) VALUES(?,?,?,?,?,?,?,?,?,?,'PENDING','EMAIL')").run(sessionId,s.id,'','',s.masked_name,c.name,`${period}. Ders`,req.user.full_name,savedAt,stamp+30*60000);
-      } else db.prepare("UPDATE notification_queue SET status='CANCELLED',response_log='Yoklama düzeltildi' WHERE session_id=? AND student_id=? AND status='PENDING'").run(sessionId,s.id);
-    }
-    audit(req,'ATTENDANCE_SAVED','CLASS',c.id,`${date}, ${period}. ders, gelmeyen: ${absentCount}`);return {sessionId,absentCount,saved_timestamp:version};
-  })();
-  let report=null;
-  if(config.APP_MODE==='school'){
-    try{report=await require('../attendanceReport').createReport(c,date);}
-    catch(e){console.error('Yoklama Excel dosyası oluşturulamadı:',e.message);report={success:false,message:'Excel dosyası oluşturulamadı. Masaüstü klasörü ve izinlerini kontrol edin.'};}
+  return {period,pupils,records:b.records,expectedSavedTimestamp:b.expectedSavedTimestamp,note:text(b.note,'Ders notu',2000,true)};
+}
+function saveAttendancePeriod(req,c,date,b,stamp,savedAt){
+  const {period,pupils,records,note,expectedSavedTimestamp}=b;
+  let sess=db.prepare('SELECT * FROM attendance_sessions WHERE class_id=? AND period=? AND date=?').get(c.id,period,date);
+  if(sess && db.prepare('SELECT 1 FROM notification_queue WHERE session_id=? AND processing_since IS NOT NULL').get(sess.id))fail(409,'Bu yoklamanın bildirimi gönderiliyor. İşlem bitince tekrar deneyin.');
+  if(sess && expectedSavedTimestamp!==sess.saved_timestamp)fail(409,`${period}. ders başka bir oturumda değiştirildi. Listeyi yenileyip tekrar kaydedin.`);
+  if(!sess && expectedSavedTimestamp!=null)fail(409,`${period}. dersin yoklama kaydı değişti. Listeyi yenileyin.`);
+  const sessionId=sess?sess.id:Number(db.prepare('INSERT INTO attendance_sessions(class_id,period,date,recorded_by_teacher_id,saved_at_turkey_time,saved_timestamp,note) VALUES(?,?,?,?,?,?,?)').run(c.id,period,date,req.user.id,savedAt,stamp,note).lastInsertRowid);
+  const version=sess?Math.max(stamp,sess.saved_timestamp+1):stamp;
+  if(sess)db.prepare('UPDATE attendance_sessions SET recorded_by_teacher_id=?,saved_at_turkey_time=?,saved_timestamp=?,note=? WHERE id=?').run(req.user.id,savedAt,version,note,sessionId);
+  let absentCount=0;
+  for(const s of pupils){
+    const status=records[s.id];db.prepare('INSERT INTO attendance_records(session_id,student_id,status,updated_at) VALUES(?,?,?,?) ON CONFLICT(session_id,student_id) DO UPDATE SET status=excluded.status,updated_at=excluded.updated_at').run(sessionId,s.id,status,savedAt);
+    if(status==='GELMEDI'){
+      absentCount++;
+      const existing=db.prepare("SELECT id FROM notification_queue WHERE session_id=? AND student_id=? AND status IN ('PENDING','SENT')").get(sessionId,s.id);
+      if(!existing && date===today() && (config.EMAIL_ENABLED||config.PUSH_ENABLED))db.prepare("INSERT INTO notification_queue(session_id,student_id,parent_email,parent_phone,student_name_masked,class_name,period_name,teacher_name,absent_time_turkey,scheduled_send_time,status,channel) VALUES(?,?,?,?,?,?,?,?,?,?,'PENDING','EMAIL')").run(sessionId,s.id,'','',s.masked_name,c.name,`${period}. Ders`,req.user.full_name,savedAt,stamp+30*60000);
+    }else db.prepare("UPDATE notification_queue SET status='CANCELLED',response_log='Yoklama düzeltildi' WHERE session_id=? AND student_id=? AND status='PENDING'").run(sessionId,s.id);
   }
-  res.json({success:true,...result,savedAt,export:report,scheduledSendMinutes:30,message:`Yoklama kaydedildi. Gelmeyen: ${result.absentCount}. ${report?(report.success?'Excel raporu Masaüstü/Yoklamalar klasörüne kaydedildi.':report.message):''} ${!(config.EMAIL_ENABLED||config.PUSH_ENABLED)?'Çevrimdışı okul sürümü: e-posta ve push kapalıdır.':date===today()?'Bildirimler 30 dakika sonra işlenir.':'Geçmiş kayıt için bildirim oluşturulmadı.'}`});
+  audit(req,'ATTENDANCE_SAVED','CLASS',c.id,`${date}, ${period}. ders, gelmeyen: ${absentCount}`);
+  return {period,sessionId,absentCount,saved_timestamp:version};
+}
+async function dailyReport(c,date){
+  if(config.APP_MODE!=='school')return null;
+  try{return await require('../attendanceReport').createReport(c,date);}
+  catch(e){console.error('Yoklama Excel dosyası oluşturulamadı:',e.message);return {success:false,message:'Excel dosyası oluşturulamadı. Açık Excel dosyasını kapatın, masaüstü klasörünü ve izinlerini kontrol edin.'};}
+}
+router.post('/attendance/save',async(req,res)=>{
+  staff(req);const b=req.body,c=getClass(req,b.classId,true),date=b.date?isoDate(b.date):today();if(date>today())fail(400,'Gelecek tarih için yoklama kaydedilemez.');
+  const prepared=prepareAttendancePeriod(req,c,date,b),stamp=Date.now(),savedAt=nowText();
+  const result=db.transaction(()=>saveAttendancePeriod(req,c,date,prepared,stamp,savedAt))();
+  const report=await dailyReport(c,date);
+  res.json({success:true,...result,savedAt,export:report,scheduledSendMinutes:30,message:`Yoklama kaydedildi. Gelmeyen: ${result.absentCount}. ${report?(report.success?'Günlük Excel raporu Masaüstü/Yoklamalar klasöründe güncellendi.':report.message):''} ${!(config.EMAIL_ENABLED||config.PUSH_ENABLED)?'Çevrimdışı okul sürümü: e-posta ve push kapalıdır.':date===today()?'Bildirimler 30 dakika sonra işlenir.':'Geçmiş kayıt için bildirim oluşturulmadı.'}`});
+});
+router.post('/attendance/save-batch',async(req,res)=>{
+  admin(req);const b=req.body,c=getClass(req,b.classId,true),date=b.date?isoDate(b.date):today();if(date>today())fail(400,'Gelecek tarih için yoklama kaydedilemez.');
+  if(!Array.isArray(b.periods)||b.periods.length<1||b.periods.length>8)fail(400,'Bir veya daha fazla ders saati seçin.');
+  const prepared=b.periods.map(item=>prepareAttendancePeriod(req,c,date,item||{}));
+  if(new Set(prepared.map(item=>item.period)).size!==prepared.length)fail(400,'Aynı ders saati birden fazla kez seçilemez.');
+  const stamp=Date.now(),savedAt=nowText();
+  const periods=db.transaction(()=>prepared.map(item=>saveAttendancePeriod(req,c,date,item,stamp,savedAt)))();
+  const report=await dailyReport(c,date);
+  res.json({success:true,periods,savedAt,export:report,message:`${periods.length} ders saati kaydedildi. ${report?(report.success?'Günlük Excel raporu Masaüstü/Yoklamalar klasöründe güncellendi.':report.message):''}`});
 });
 function queueItem(req,qid){staff(req);const q=db.prepare('SELECT q.*,a.class_id FROM notification_queue q JOIN attendance_sessions a ON a.id=q.session_id WHERE q.id=?').get(id(qid));if(!q)fail(404,'Bildirim bulunamadı.');getClass(req,q.class_id,true);return q;}
 router.get('/attendance/queue',(req,res)=>{
@@ -256,10 +287,8 @@ router.get('/attendance/history',(req,res)=>{
 });
 router.get('/attendance/export',async(req,res)=>{
   staff(req);const c=getClass(req,req.query.classId),start=isoDate(req.query.start||today()),end=isoDate(req.query.end||start);if(start>end)fail(400,'Başlangıç tarihi bitişten sonra olamaz.');
-  const ExcelJS=require('exceljs'),wb=new ExcelJS.Workbook(),ws=wb.addWorksheet('Yoklama');ws.columns=[{header:'Tarih',key:'date',width:14},{header:'Ders',key:'period',width:8},{header:'No',key:'student_no',width:12},{header:'Öğrenci (maskeli)',key:'masked_name',width:30},{header:'Durum',key:'status',width:14},{header:'Kaydeden',key:'teacher_name',width:25}];
-  const rows=db.prepare("SELECT a.date,a.period,s.student_no,s.masked_name,r.status,u.full_name AS teacher_name FROM attendance_records r JOIN attendance_sessions a ON a.id=r.session_id JOIN students s ON s.id=r.student_id JOIN users u ON u.id=a.recorded_by_teacher_id WHERE a.class_id=? AND a.date BETWEEN ? AND ? AND r.status='GELMEDI' ORDER BY a.date,a.period,CAST(s.student_no AS INTEGER)").all(c.id,start,end);ws.addRows(rows);ws.getRow(1).font={bold:true};audit(req,'ATTENDANCE_EXPORTED','CLASS',c.id);
-  const className=String(c.name).replace(/[<>:"/\\|?*\x00-\x1f]/g,'-').replace(/[. ]+$/g,'').slice(0,80)||'Sinif';
-  const dateName=start.split('-').reverse().join('.');res.attachment(`${className}_${dateName}_${time().replace(':','-')}.xlsx`);res.send(Buffer.from(await wb.xlsx.writeBuffer()));
+  const report=require('../attendanceReport'),{book}=report.buildWorkbook(c,start,end);audit(req,'ATTENDANCE_EXPORTED','CLASS',c.id);
+  res.attachment(report.reportName(c,start));res.send(Buffer.from(await book.xlsx.writeBuffer()));
 });
 router.get('/students',(req,res)=>{let students=[];for(const c of classesFor(req))if(!req.query.classId||Number(req.query.classId)===c.id)students.push(...studentRows(req,c.id).map(s=>({...s,class_name:c.name})));res.json({success:true,students});});
 router.post('/students',(req,res)=>{
@@ -302,5 +331,5 @@ router.post('/push/subscribe',(req,res)=>{saveSubscription(req.user.id,req.body)
 router.post('/push/unsubscribe',(req,res)=>{removeSubscription(req.user.id,req.body.endpoint);res.json({success:true});});
 router.get('/notifications/inbox',(req,res)=>res.json({success:true,notifications:db.prepare('SELECT * FROM user_notifications WHERE user_id=? ORDER BY id DESC LIMIT 100').all(req.user.id)}));
 router.post('/notifications/broadcast',async(req,res)=>{admin(req);const sid=req.user.role==='superadmin'?id(req.body.schoolId):req.user.school_id;schoolAccess(req,sid);const title=text(req.body.title,'Başlık',150),body=text(req.body.message,'Mesaj',1000);const result=await notifyUsers(db.prepare('SELECT id FROM users WHERE school_id=?').all(sid).map(u=>u.id),title,body);audit(req,'INSTANT_NOTIFICATION','SCHOOL',sid);res.json({success:true,result,message:config.PUSH_ENABLED?'Bildirim merkezine kaydedildi; izinli cihazlara push gönderimi denendi.':'Bildirim okul içindeki bildirim merkezine kaydedildi. E-posta ve push kapalıdır.'});});
-router.get('/settings/status',(req,res)=>{admin(req);res.json({success:true,mail:mailStatus(),deviceApprovalRequired:config.REQUIRE_DEVICE_APPROVAL,version:'1.3.1',features:{email:config.EMAIL_ENABLED,push:config.PUSH_ENABLED},deployment:config.APP_MODE});});
+router.get('/settings/status',(req,res)=>{admin(req);res.json({success:true,mail:mailStatus(),deviceApprovalRequired:config.REQUIRE_DEVICE_APPROVAL,version:'1.3.2',features:{email:config.EMAIL_ENABLED,push:config.PUSH_ENABLED},deployment:config.APP_MODE});});
 module.exports = router;

@@ -34,7 +34,7 @@ jobs:
       - name: Paketlenmiş EXE ile örnek kurulum ve yoklama testi
         run: node scripts/windows-package-smoke.cjs dist_installer/win-unpacked/VarYok.exe
       - name: Taşınabilir EXE ile örnek kurulum ve yoklama testi
-        run: node scripts/windows-package-smoke.cjs dist_installer/VarYok-Tasinabilir-1.3.1-x64.exe
+        run: node scripts/windows-package-smoke.cjs dist_installer/VarYok-Tasinabilir-1.3.2-x64.exe
       - uses: actions/upload-artifact@v4
         with:
           name: VarYok-Windows-x64
