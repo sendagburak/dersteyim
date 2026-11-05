@@ -47,9 +47,9 @@ export default function DailyAttendance({request,classes,periods,classId,onClass
     if(dirty.size && !window.confirm('Kaydedilmemiş yoklama değişiklikleri silinecek. Devam etmek istiyor musunuz?'))return;
     setDirty(new Set());setMessage('');change(value);
   };
-  const markStatus=(studentId,status)=>{
-    setByPeriod(prev=>markStudent(prev,selected,studentId,status));
-    setDirty(prev=>new Set([...prev,...selected]));
+  const markStatus=(studentId,period,status)=>{
+    setByPeriod(prev=>markStudent(prev,[period],studentId,status));
+    setDirty(prev=>new Set([...prev,period]));
   };
   const handleMarkAllPresent=()=>{
     setByPeriod(prev=>markAllPresent(prev,selected));
@@ -98,7 +98,7 @@ export default function DailyAttendance({request,classes,periods,classId,onClass
           </label>;})}
         </div>
       </fieldset>
-      <p className="text-sm">Bir veya birden fazla ders saati seçin. Öğrencinin durum düğmesi, o öğrenci için seçili saatlerin tümüne uygulanır. Diğer saatler değişmez. Yeni bir saat kaydedilirken işaretlenmeyen öğrenciler <strong>Geldi</strong> olarak kaydedilir. Excel yalnızca kaydedilmiş saatleri gösterir; değişiklik yaptıysanız indirmeden önce kaydedin.</p>
+      <p className="text-sm">Bir veya birden fazla ders saati seçin. Her öğrencinin her ders için durumunu ayrı ayrı belirleyin; bir dersteki değişiklik diğer dersleri etkilemez. Yeni bir saat kaydedilirken işaretlenmeyen öğrenciler <strong>Geldi</strong> olarak kaydedilir. Excel yalnızca kaydedilmiş saatleri gösterir; değişiklik yaptıysanız indirmeden önce kaydedin.</p>
     </section>
     {message&&<p role="status" className="panel whitespace-pre-line">{message}</p>}
     {loading&&<p role="status">Günlük yoklama yükleniyor…</p>}
@@ -108,18 +108,18 @@ export default function DailyAttendance({request,classes,periods,classId,onClass
       {!loading&&!pupils.length&&<p className="text-sm">Bu sınıfta öğrenci bulunmuyor. Önce öğrenci ekleyin veya listeyi içe aktarın.</p>}
       <div className="divide-y divide-slate-200 dark:divide-slate-700">
         {pupils.map(student=>{
-          const eligible=selected.length>0&&selected.every(p=>byPeriod[p]&&Object.hasOwn(byPeriod[p].records,student.id));
-          const statuses=eligible?selected.map(p=>byPeriod[p].records[student.id]):[];
-          const current=statuses.length&&statuses.every(s=>s===statuses[0])?statuses[0]:null;
           return <div key={student.id} className="py-4 space-y-2">
-            <div className="flex flex-wrap justify-between items-center gap-3">
-              <div><strong>{student.student_no} · {student.masked_name}</strong>{statuses.length>0&&!current&&<span className="ml-2 text-sm text-amber-700 dark:text-amber-300">Seçili saatlerde durumlar farklı</span>}</div>
-              <div className="flex flex-wrap gap-2">{BUTTONS.map(([status,label,color])=><button key={status} type="button" aria-pressed={current===status} disabled={busy||!eligible} onClick={()=>markStatus(student.id,status)} className={`rounded-lg px-3 py-1.5 text-sm font-bold ${current===status?color+' text-white':'bg-slate-100 dark:bg-slate-700'} disabled:opacity-50`}>{label}</button>)}</div>
-            </div>
+            <strong>{student.student_no} · {student.masked_name}</strong>
+            <div className="grid gap-2">{selected.map(period=>{
+              const entry=byPeriod[period],eligible=entry&&Object.hasOwn(entry.records,student.id),current=eligible?entry.records[student.id]:null;
+              return <div key={period} role="group" aria-label={`${student.student_no} numaralı öğrenci ${period}. ders durumu`} className="flex flex-wrap items-center gap-2">
+                <span className="w-16 text-sm font-semibold">{period}. ders</span>
+                {eligible?BUTTONS.map(([status,label,color])=><button key={status} type="button" aria-pressed={current===status} disabled={busy} onClick={()=>markStatus(student.id,period,status)} className={`rounded-lg px-3 py-1.5 text-sm font-bold ${current===status?color+' text-white':'bg-slate-100 dark:bg-slate-700'} disabled:opacity-50`}>{label}</button>):<span className="text-xs">Bu öğrenci bu dersin kaydında bulunmuyor.</span>}
+              </div>;
+            })}</div>
             <div className="flex flex-wrap gap-1.5 text-xs" aria-label={`${student.student_no} günlük ders durumları`}>
               {PERIODS.map(period=>{const entry=byPeriod[period],hasStudent=entry&&Object.hasOwn(entry.records,student.id),recorded=hasStudent&&Object.hasOwn(entry.recorded,student.id),show=hasStudent&&(recorded||selected.includes(period)||dirty.has(period)),status=show?LABELS[entry.records[student.id]]:'Kayıt yok';return <span key={period} className="rounded-md bg-slate-100 dark:bg-slate-700 px-2 py-1">{period}: {status}{show&&!recorded?' (yeni)':''}{dirty.has(period)?' *':''}</span>;})}
             </div>
-            {selected.length>0&&!eligible&&<p className="text-xs">Bu öğrenci seçili saatlerin tamamında bulunmuyor; eski kaydını düzenlemek için ilgili saati tek seçin.</p>}
           </div>;
         })}
       </div>

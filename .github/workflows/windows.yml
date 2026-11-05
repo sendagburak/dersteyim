@@ -29,12 +29,14 @@ jobs:
           Copy-Item (Get-Command node.exe).Source bin/node.exe
       - name: Masaüstü bağımlılıkları
         run: npm install --prefix desktop --no-audit --no-fund
+      - name: Electron penceresini ve kaydedilmemiş değişiklik uyarısını test et
+        run: node scripts/windows-electron-close-smoke.cjs
       - name: Windows kurulum ve taşınabilir EXE
         run: npm --prefix desktop run dist
       - name: Paketlenmiş EXE ile örnek kurulum ve yoklama testi
-        run: node scripts/windows-package-smoke.cjs dist_installer/win-unpacked/VarYok.exe
+        run: node scripts/windows-package-smoke.cjs dist_installer/win-unpacked/VarYok.exe --verify-close
       - name: Taşınabilir EXE ile örnek kurulum ve yoklama testi
-        run: node scripts/windows-package-smoke.cjs dist_installer/VarYok-Tasinabilir-1.3.2-x64.exe
+        run: node scripts/windows-package-smoke.cjs dist_installer/VarYok-Tasinabilir-1.3.3-x64.exe
       - uses: actions/upload-artifact@v4
         with:
           name: VarYok-Windows-x64

@@ -82,6 +82,19 @@ async function main() {
     const credentialsRoot = path.join(documents, 'VarYok');
     assert.ok(fs.readdirSync(credentialsRoot, { recursive: true }).some(name => String(name).endsWith('.txt')));
     console.log('Paketlenmiş EXE başladı; örnek hesap, gelecek yıl ve yoklama XLSX kontrol edildi.');
+    if (process.argv.includes('--verify-close')) {
+      let sent=false;
+      for(let i=0;i<30&&!sent;i++){
+        const result=spawnSync('powershell.exe',['-NoProfile','-NonInteractive','-Command',`$p=Get-Process -Id ${child.pid} -ErrorAction Stop; if (-not $p.CloseMainWindow()) { exit 1 }`],{stdio:'ignore'});
+        sent=result.status===0;
+        if(!sent)await delay(500);
+      }
+      assert.ok(sent,'Paketlenmiş pencereye kapatma isteği gönderilemedi.');
+      for(let i=0;i<200&&child.exitCode===null;i++)await delay(100);
+      assert.equal(child.exitCode,0,'Paketlenmiş uygulama normal şekilde kapanmadı.');
+      assert.equal(fs.existsSync(controlFile),false,'Yerel servis kapanışını tamamlamadı.');
+      console.log('Paketlenmiş pencere ve yerel servis normal şekilde kapandı.');
+    }
   } finally {
     if (control?.token) {
       try { await fetch(`http://127.0.0.1:${control.port}/internal/shutdown`, { method: 'POST', headers: { 'X-Control-Token': control.token }, signal: AbortSignal.timeout(2000) }); } catch {}
