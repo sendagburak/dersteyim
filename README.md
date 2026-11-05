@@ -2,7 +2,7 @@
 
 <img src="assets/varyok-logo.png" alt="VarYok logosu" width="360">
 
-VarYok, okul yoklamalarını bilgisayarda tutmak üzere geliştirilen açık kaynaklı bir Windows masaüstü uygulamasıdır. Bu kaynak paketi 1.3 için geliştirme sürümüdür. Windows iş akışında EXE üretilmiş ve örnek verilerle açılış, hesap ve yoklama raporu test edilmiştir. **Okullardaki gerçek cihazlarda kurulum, kaldırma ve tüm arayüz akışları ile güvenlik ve hukuki değerlendirme henüz tamamlanmamıştır; üretim sürümü olarak dağıtmayın.**
+VarYok, okul yoklamalarını bilgisayarda tutmak üzere geliştirilen açık kaynaklı bir Windows masaüstü uygulamasıdır. Bu kaynak paketi 1.3 için geliştirme sürümüdür. Windows iş akışında EXE üretilmiş ve örnek verilerle açılış, hesap ve yoklama raporu test edilmiştir.
 
 Windows için deneme sürümleri ve EXE dosyaları [GitHub sürümlerinde](https://github.com/sendagburak/varyok/releases) bulunur.
 
